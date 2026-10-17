@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Developers — IconLi</title>
+  <meta name="description" content="Use IconLi icons by name with one script tag: the iconli-icon web component, data-iconli attributes or the JavaScript API. No asset downloads needed." />
+  <meta name="theme-color" content="#06061a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%238f7bff'/%3E%3Cstop offset='1' stop-color='%234be1c8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='10' fill='url(%23g)'/%3E%3Cg transform='translate(5.6 5.6) scale(.867)'%3E%3Cg transform='matrix(1.08 0 0 1.08 -0.96 -0.96)'%3E%3Cg fill='%23ffffff' stroke='%23ffffff' stroke-width='1.3889' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.5 3.5c0.6 4.5 2.5 6.4 7 7-4.5 0.6-6.4 2.5-7 7-0.6-4.5-2.5-6.4-7-7 4.5-0.6 6.4-2.5 7-7Z'/%3E%3Cpath d='M18.25 15.24c0.258 1.935 1.075 2.7520000000000002 3.01 3.01-1.935 0.258-2.7520000000000002 1.075-3.01 3.01-0.258-1.935-1.075-2.7520000000000002-3.01-3.01 1.935-0.258 2.7520000000000002-1.075 3.01-3.01Z'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css?v=51" />
+  <script>
+    try { const t = localStorage.getItem('iconli-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    // Hide page content until the splash/loader hands over; a safety net reveals it if scripts fail.
+    document.documentElement.classList.add('is-loading');
+    // The splash intro plays only on the first load of the site, on the home page (once per session; ?intro replays it).
+    try {
+      const home = /(^|\/)(index\.html)?$/.test(location.pathname);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (home && !reduce && (sessionStorage.getItem('iconli-intro') !== '1' || /[?&]intro\b/.test(location.search))) document.documentElement.classList.add('show-intro');
+    } catch (e) {}
+    setTimeout(function () { if (!window.IconLiSplash) document.documentElement.classList.remove('is-loading'); }, 6000);
+  </script>
+</head>
+<body data-page="developers">
+  <div class="splash" id="splash" role="status" aria-label="Loading IconLi">
+    <div class="sp-field" aria-hidden="true"><div class="sp-plane"></div></div>
+    <div class="sp-center">
+      <span class="sp-mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="matrix(1.08 0 0 1.08 -0.96 -0.96)"><g fill="#ffffff" stroke="#ffffff" stroke-width="1.3889" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3.5c0.6 4.5 2.5 6.4 7 7-4.5 0.6-6.4 2.5-7 7-0.6-4.5-2.5-6.4-7-7 4.5-0.6 6.4-2.5 7-7Z"/><path d="M18.25 15.24c0.258 1.935 1.075 2.7520000000000002 3.01 3.01-1.935 0.258-2.7520000000000002 1.075-3.01 3.01-0.258-1.935-1.075-2.7520000000000002-3.01-3.01 1.935-0.258 2.7520000000000002-1.075 3.01-3.01Z"/></g></g></svg></span>
+      <p class="sp-name">Icon<em>Li</em></p>
+      <p class="sp-motto">Icons, crafted like jewellery.</p>
+      <div class="sp-bar" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+      <span class="sp-pct" aria-hidden="true">0%</span>
+    </div>
+    <div class="sp-hint" aria-hidden="true"><span class="sp-mouse"><i></i></span>Scroll to enter</div>
+    <button type="button" class="btn btn-sm sp-skip">Skip intro</button>
+  </div>
+  <a class="skip" href="#main">Skip to content</a>
+  <canvas id="space" aria-hidden="true"></canvas>
+  <div class="nebula" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="nav contained" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="brand" aria-label="IconLi home"><span class="brand-mark"><i data-icon="Sparkles" data-style="solid" data-size="18"></i></span><span>Icon<em>Li</em></span></a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="index.html" data-page="home">Home</a>
+        <a href="icons.html" data-page="icons">Icons</a>
+        <a href="developers.html" data-page="developers">Developers</a>
+      </nav>
+      <div class="nav-spacer"></div>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"></button>
+      <a class="btn btn-primary btn-sm btn-dl" href="dist/iconli.js" download><i data-icon="Download" data-size="16"></i>iconli.js</a>
+      <button class="icon-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menuPanel"></button>
+    </div>
+  </header>
+  <nav class="menu-panel" id="menuPanel" aria-label="Mobile" hidden>
+    <a href="index.html" data-page="home"><i data-icon="Home" data-size="22"></i>Home</a>
+    <a href="icons.html" data-page="icons"><i data-icon="Grid" data-size="22"></i>Icons</a>
+    <a href="developers.html" data-page="developers"><i data-icon="Code" data-size="22"></i>Developers</a>
+  </nav>
+
+  <div class="docs container">
+    <div class="g24">
+      <nav class="lg-s-5 toc" aria-label="On this page">
+        <ol>
+          <li><a href="#install">Install</a></li>
+          <li><a href="#component">Web component</a></li>
+          <li><a href="#attribute">Data attribute</a></li>
+          <li><a href="#js">JavaScript API</a></li>
+          <li><a href="#tokens">Token names</a></li>
+          <li><a href="#styling">Styling</a></li>
+          <li><a href="#a11y">Accessibility</a></li>
+          <li><a href="#frameworks">Frameworks</a></li>
+          <li><a href="#credit">Credit</a></li>
+        </ol>
+      </nav>
+
+      <main id="main" class="s-24 lg-s-19 doc">
+        <span class="kicker">Developers</span>
+        <h1>Use any icon, by name.</h1>
+        <p class="lead">Add IconLi once and write <code>&lt;iconli-icon name="heart"&gt;</code>. There are no files to download, upload or keep in sync. Icons render as inline SVG, so they scale with your font and inherit your colour.</p>
+        <div class="live card" style="padding:18px 20px">
+          <iconli-icon name="heart" size="28"></iconli-icon>
+          <iconli-icon name="heart-solid" size="28"></iconli-icon>
+          <iconli-icon name="heart-duotone" size="28"></iconli-icon>
+          <iconli-icon name="rocket" variant="duotone" size="28"></iconli-icon>
+          <iconli-icon name="planet" variant="solid" size="28" color="#f2d6a2"></iconli-icon>
+          <iconli-icon name="crown" variant="duotone" size="28" color="#8f7bff"></iconli-icon>
+          <i data-iconli="sparkles-solid" data-size="28"></i>
+          <span class="muted">These icons are rendered by <code>dist/iconli.js</code> on this page.</span>
+        </div>
+
+        <h2 id="install">Install</h2>
+        <h3>From the CDN</h3>
+        <p>Add the script once, ideally just before <code>&lt;/body&gt;</code>:</p>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="i1">Copy</button><pre id="i1"><span class="tok-t">&lt;script</span> <span class="tok-a">src</span>=<span class="tok-s">"<span data-cdn></span>"</span><span class="tok-t">&gt;&lt;/script&gt;</span></pre></div></div>
+        <h3>Or self-host</h3>
+        <p>Download <a href="dist/iconli.js" download>iconli.js</a> (about 60&nbsp;KB gzipped, with all <span data-count="icons">1,200+</span> icons included) or get it inside the full ZIP. Then serve it from your own site:</p>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="i2">Copy</button><pre id="i2"><span class="tok-t">&lt;script</span> <span class="tok-a">src</span>=<span class="tok-s">"/js/iconli.js"</span><span class="tok-t">&gt;&lt;/script&gt;</span></pre></div></div>
+
+        <h2 id="component">Web component</h2>
+        <p><code>&lt;iconli-icon&gt;</code> works in plain HTML and in every framework.</p>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="w1">Copy</button><pre id="w1"><span class="tok-t">&lt;iconli-icon</span> <span class="tok-a">name</span>=<span class="tok-s">"bell"</span><span class="tok-t">&gt;&lt;/iconli-icon&gt;</span>
+<span class="tok-t">&lt;iconli-icon</span> <span class="tok-a">name</span>=<span class="tok-s">"bell"</span> <span class="tok-a">variant</span>=<span class="tok-s">"solid"</span> <span class="tok-a">size</span>=<span class="tok-s">"32"</span><span class="tok-t">&gt;&lt;/iconli-icon&gt;</span>
+<span class="tok-t">&lt;iconli-icon</span> <span class="tok-a">name</span>=<span class="tok-s">"bell-duotone"</span> <span class="tok-a">stroke</span>=<span class="tok-s">"2"</span> <span class="tok-a">color</span>=<span class="tok-s">"#8f7bff"</span> <span class="tok-a">label</span>=<span class="tok-s">"Notifications"</span><span class="tok-t">&gt;&lt;/iconli-icon&gt;</span></pre></div>
+          <div class="live"><iconli-icon name="bell"></iconli-icon><iconli-icon name="bell" variant="solid" size="32"></iconli-icon><iconli-icon name="bell-duotone" stroke="2" color="#8f7bff" label="Notifications"></iconli-icon></div>
+        </div>
+        <div class="table-wrap"><table>
+          <caption class="sr-only">iconli-icon attributes</caption>
+          <thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>—</td><td>The icon token, for example <code>heart</code> or <code>heart-solid</code>. Required.</td></tr>
+            <tr><td><code>variant</code></td><td><code>outline</code></td><td><code>outline</code>, <code>solid</code> or <code>duotone</code>. This is ignored if <code>name</code> already ends with the variant.</td></tr>
+            <tr><td><code>size</code></td><td><code>1.5em</code></td><td>A number in pixels, or any CSS length such as <code>1em</code> or <code>2rem</code>.</td></tr>
+            <tr><td><code>stroke</code></td><td><code>1.5</code></td><td>Stroke weight, from 0.5 to 3. Solid shapes keep their silhouette.</td></tr>
+            <tr><td><code>color</code></td><td><code>currentColor</code></td><td>Any CSS colour. Leave it out to inherit the text colour.</td></tr>
+            <tr><td><code>label</code></td><td>—</td><td>An accessible name. Without it, the icon is decorative and hidden from screen readers.</td></tr>
+          </tbody>
+        </table></div>
+
+        <h2 id="attribute">Data attribute</h2>
+        <p>Prefer plain elements? Put <code>data-iconli</code> on any tag. Elements added later, for example by your framework, are picked up automatically.</p>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="d1">Copy</button><pre id="d1"><span class="tok-t">&lt;i</span> <span class="tok-a">data-iconli</span>=<span class="tok-s">"download"</span><span class="tok-t">&gt;&lt;/i&gt;</span>
+<span class="tok-t">&lt;i</span> <span class="tok-a">data-iconli</span>=<span class="tok-s">"rocket-duotone"</span> <span class="tok-a">data-size</span>=<span class="tok-s">"28"</span> <span class="tok-a">data-stroke</span>=<span class="tok-s">"1.75"</span><span class="tok-t">&gt;&lt;/i&gt;</span>
+<span class="tok-t">&lt;i</span> <span class="tok-a">data-iconli</span>=<span class="tok-s">"crown-solid"</span> <span class="tok-a">data-color</span>=<span class="tok-s">"#f2d6a2"</span> <span class="tok-a">data-label</span>=<span class="tok-s">"Premium"</span><span class="tok-t">&gt;&lt;/i&gt;</span></pre></div>
+          <div class="live"><i data-iconli="download"></i><i data-iconli="rocket-duotone" data-size="28" data-stroke="1.75"></i><i data-iconli="crown-solid" data-color="#f2d6a2" data-label="Premium"></i></div>
+        </div>
+
+        <h2 id="js">JavaScript API</h2>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="j1">Copy</button><pre id="j1">IconLi.svg(<span class="tok-s">'wallet-solid'</span>, { size: <span class="tok-s">24</span>, stroke: <span class="tok-s">1.5</span>, color: <span class="tok-s">'#8f7bff'</span> }); <span class="tok-c">// → '&lt;svg …&gt;'</span>
+IconLi.svg(<span class="tok-s">'star'</span>, { gradient: [<span class="tok-s">'#f2d6a2'</span>, <span class="tok-s">'#8f7bff'</span>] });            <span class="tok-c">// gradient fill and stroke</span>
+IconLi.get(<span class="tok-s">'heart-duotone'</span>);   <span class="tok-c">// → { name, style, cat, slug, … } or null</span>
+IconLi.tokens();               <span class="tok-c">// → every token name</span>
+IconLi.hydrate(container);     <span class="tok-c">// re-scan for data-iconli inside a container</span></pre></div></div>
+
+        <h2 id="tokens">Token names</h2>
+        <p>A token is the icon's name in lowercase with dashes, plus a style suffix: <code>arrow-up-right</code>, <code>credit-card-solid</code>, <code>planet-duotone</code>. You can also download the full list as <a href="dist/tokens.json">tokens.json</a>. Search below, then click a result to copy its tag.</p>
+        <div class="finder card">
+          <label class="search">
+            <span class="sr-only">Find a token</span>
+            <i data-icon="Search" data-size="18"></i>
+            <input id="tokQ" type="search" placeholder="Find a token, e.g. user, cloud, arrow" autocomplete="off" spellcheck="false" />
+          </label>
+          <ul class="finder-results" id="tokRes" aria-label="Matching tokens"></ul>
+          <p class="muted" id="tokInfo" aria-live="polite"></p>
+        </div>
+
+        <h2 id="styling">Styling</h2>
+        <p>Icons use <code>currentColor</code>, so CSS controls them. The component is <code>display: inline-flex</code> and aligns with surrounding text.</p>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="s1">Copy</button><pre id="s1">iconli-icon { color: <span class="tok-s">#8f7bff</span>; }
+.btn iconli-icon { margin-right: <span class="tok-s">.4em</span>; }
+.btn:hover iconli-icon { color: <span class="tok-s">gold</span>; transition: color .3s; }</pre></div></div>
+
+        <h2 id="a11y">Accessibility</h2>
+        <ul>
+          <li>Icons without a <code>label</code> are rendered with <code>aria-hidden="true"</code>, which is right for decorative icons next to text.</li>
+          <li>Icon-only buttons need a name. Put <code>aria-label</code> on the button, or give the icon a <code>label</code>.</li>
+          <li>With a <code>label</code>, the SVG gets <code>role="img"</code> and that label as its accessible name.</li>
+        </ul>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="a1">Copy</button><pre id="a1"><span class="tok-t">&lt;button</span> <span class="tok-a">aria-label</span>=<span class="tok-s">"Close"</span><span class="tok-t">&gt;&lt;iconli-icon</span> <span class="tok-a">name</span>=<span class="tok-s">"close"</span><span class="tok-t">&gt;&lt;/iconli-icon&gt;&lt;/button&gt;</span></pre></div></div>
+
+        <h2 id="frameworks">Frameworks</h2>
+        <h3>React</h3>
+        <div class="codebox"><div class="code-pane"><button type="button" class="btn btn-sm" data-copy-code="r1">Copy</button><pre id="r1"><span class="tok-c">// Load iconli.js once (index.html or your layout), then:</span>
+<span class="tok-t">export function</span> Icon({ name, ...props }) {
+  <span class="tok-t">return</span> &lt;iconli-icon name={name} {...props} /&gt;;
+}</pre></div></div>
+        <h3>Vue</h3>
+        <p>Tell Vue that <code>iconli-icon</code> is a custom element: <code>compilerOptions.isCustomElement = (tag) =&gt; tag === 'iconli-icon'</code>. Then use <code>&lt;iconli-icon name="heart" /&gt;</code> in templates.</p>
+        <h3>Server-side or static</h3>
+        <p>Call <code>IconLi.svg('name')</code> at build time and inline the markup. The output is plain SVG with no runtime dependency.</p>
+
+        <h2 id="credit">Credit</h2>
+        <p>IconLi is free for personal and commercial use under CC BY 4.0. Please include this credit line in your credits, footer, about page or README:</p>
+        <div class="credit-box"><code data-credit></code><button type="button" class="btn btn-sm" data-copy-credit><i data-icon="Copy" data-size="16"></i>Copy</button></div>
+      </main>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container"><p class="fine" style="margin:0;border:0;padding:0">Free for personal &amp; commercial use. Credit: <span data-credit></span> · <a href="index.html">Home</a> · <a href="icons.html">Icons</a></p></div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="dist/iconli.js?v=51"></script>
+  <script src="assets/js/site.js?v=51"></script>
+  <script src="assets/js/docs.js?v=51"></script>
+  <script src="assets/js/splash.js?v=51"></script>
+</body>
+</html>

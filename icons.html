@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Icons — IconLi</title>
+  <meta name="description" content="Browse 1,200+ IconLi icons in outline, solid and duotone. Filter by category, customise size, stroke and colour, then copy SVG, JSX, PNG or the token name." />
+  <meta name="theme-color" content="#06061a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%238f7bff'/%3E%3Cstop offset='1' stop-color='%234be1c8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='10' fill='url(%23g)'/%3E%3Cg transform='translate(5.6 5.6) scale(.867)'%3E%3Cg transform='matrix(1.08 0 0 1.08 -0.96 -0.96)'%3E%3Cg fill='%23ffffff' stroke='%23ffffff' stroke-width='1.3889' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.5 3.5c0.6 4.5 2.5 6.4 7 7-4.5 0.6-6.4 2.5-7 7-0.6-4.5-2.5-6.4-7-7 4.5-0.6 6.4-2.5 7-7Z'/%3E%3Cpath d='M18.25 15.24c0.258 1.935 1.075 2.7520000000000002 3.01 3.01-1.935 0.258-2.7520000000000002 1.075-3.01 3.01-0.258-1.935-1.075-2.7520000000000002-3.01-3.01 1.935-0.258 2.7520000000000002-1.075 3.01-3.01Z'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css?v=51" />
+  <script>
+    try { const t = localStorage.getItem('iconli-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+    // Hide page content until the splash/loader hands over; a safety net reveals it if scripts fail.
+    document.documentElement.classList.add('is-loading');
+    // The splash intro plays only on the first load of the site, on the home page (once per session; ?intro replays it).
+    try {
+      const home = /(^|\/)(index\.html)?$/.test(location.pathname);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (home && !reduce && (sessionStorage.getItem('iconli-intro') !== '1' || /[?&]intro\b/.test(location.search))) document.documentElement.classList.add('show-intro');
+    } catch (e) {}
+    setTimeout(function () { if (!window.IconLiSplash) document.documentElement.classList.remove('is-loading'); }, 6000);
+  </script>
+</head>
+<body data-page="icons">
+  <div class="splash" id="splash" role="status" aria-label="Loading IconLi">
+    <div class="sp-field" aria-hidden="true"><div class="sp-plane"></div></div>
+    <div class="sp-center">
+      <span class="sp-mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="matrix(1.08 0 0 1.08 -0.96 -0.96)"><g fill="#ffffff" stroke="#ffffff" stroke-width="1.3889" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3.5c0.6 4.5 2.5 6.4 7 7-4.5 0.6-6.4 2.5-7 7-0.6-4.5-2.5-6.4-7-7 4.5-0.6 6.4-2.5 7-7Z"/><path d="M18.25 15.24c0.258 1.935 1.075 2.7520000000000002 3.01 3.01-1.935 0.258-2.7520000000000002 1.075-3.01 3.01-0.258-1.935-1.075-2.7520000000000002-3.01-3.01 1.935-0.258 2.7520000000000002-1.075 3.01-3.01Z"/></g></g></svg></span>
+      <p class="sp-name">Icon<em>Li</em></p>
+      <p class="sp-motto">Icons, crafted like jewellery.</p>
+      <div class="sp-bar" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+      <span class="sp-pct" aria-hidden="true">0%</span>
+    </div>
+    <div class="sp-hint" aria-hidden="true"><span class="sp-mouse"><i></i></span>Scroll to enter</div>
+    <button type="button" class="btn btn-sm sp-skip">Skip intro</button>
+  </div>
+  <a class="skip" href="#q">Skip to search</a>
+  <canvas id="space" aria-hidden="true"></canvas>
+  <div class="nebula" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="nav contained" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="brand" aria-label="IconLi home"><span class="brand-mark"><i data-icon="Sparkles" data-style="solid" data-size="18"></i></span><span>Icon<em>Li</em></span></a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="index.html" data-page="home">Home</a>
+        <a href="icons.html" data-page="icons">Icons</a>
+        <a href="developers.html" data-page="developers">Developers</a>
+      </nav>
+      <div class="nav-spacer"></div>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme"></button>
+      <a class="btn btn-primary btn-sm btn-dl" href="index.html#download"><i data-icon="Download" data-size="16"></i>Download all</a>
+      <button class="icon-btn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menuPanel"></button>
+    </div>
+  </header>
+  <nav class="menu-panel" id="menuPanel" aria-label="Mobile" hidden>
+    <a href="index.html" data-page="home"><i data-icon="Home" data-size="22"></i>Home</a>
+    <a href="icons.html" data-page="icons"><i data-icon="Grid" data-size="22"></i>Icons</a>
+    <a href="developers.html" data-page="developers"><i data-icon="Code" data-size="22"></i>Developers</a>
+    <a href="index.html#download"><i data-icon="Download" data-size="22"></i>Download all</a>
+  </nav>
+
+  <main class="lib-shell wrap" id="libShell">
+    <div class="lib-head" id="libTop">
+      <span class="kicker">The library</span>
+      <h1><span data-count="icons">1,200+</span> icons, one place.</h1>
+      <p>Search by name or meaning. Pick an icon to customise it, then copy SVG, JSX, PNG or its token name. Gold dots mark the original Signature set.</p>
+    </div>
+
+    <div class="g24 lib-body">
+      <aside class="s-24 lg-s-5 xl-s-4 sidebar" aria-labelledby="catsTitle" data-lenis-prevent>
+        <h2 id="catsTitle">Categories</h2>
+        <ul id="cats"></ul>
+        <p class="side-foot">Free for personal &amp; commercial use. Please credit <b>IconLi (Mutaher)</b>. <a href="index.html#license">License</a></p>
+      </aside>
+
+      <div id="main" class="s-24 lg-s-19 xl-s-20">
+        <div class="toolbar" id="toolbar" role="search" aria-label="Filter icons">
+          <label class="search">
+            <span class="sr-only">Search icons</span>
+            <i data-icon="Search" data-size="18"></i>
+            <input id="q" type="search" placeholder="Search icons — heart, rocket…" autocomplete="off" spellcheck="false" />
+            <span class="kbd" aria-hidden="true">/</span>
+          </label>
+          <button type="button" class="icon-btn" id="tuneBtn" aria-expanded="false" aria-controls="tunePanel" aria-label="Customise size, stroke and colour"><i data-icon="Filter" data-size="20"></i></button>
+          <div class="seg" id="styleSeg" role="group" aria-label="Icon style">
+            <span class="pill" aria-hidden="true"></span>
+            <button type="button" data-style="all">All</button>
+            <button type="button" data-style="outline">Outline</button>
+            <button type="button" data-style="solid">Solid</button>
+            <button type="button" data-style="duotone">Duotone</button>
+          </div>
+          <div class="tune" id="tunePanel">
+            <label class="ctrl size" for="gSize">Size <input type="range" id="gSize" min="16" max="48" step="1" value="28" /><output id="gSizeOut" for="gSize">28</output></label>
+            <label class="ctrl stroke" for="gStroke">Stroke <input type="range" id="gStroke" min="0.75" max="2.5" step="0.25" value="1.5" /><output id="gStrokeOut" for="gStroke">1.5</output></label>
+            <div class="ctrl color"><span id="colorLbl">Colour</span><div class="swatches" id="gSwatches" aria-labelledby="colorLbl"></div></div>
+          </div>
+          <div class="chips" id="chips" role="group" aria-label="Categories"></div>
+        </div>
+
+        <div class="result-head"><h2 id="resTitle">All icons</h2><span id="resCount"></span></div>
+        <div class="grid" id="grid" role="list" aria-labelledby="resTitle"></div>
+        <div class="more-row"><button type="button" class="btn" id="moreBtn" hidden>Show more</button></div>
+        <p class="sr-only" id="liveRegion" aria-live="polite"></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Detail drawer -->
+  <div class="scrim" id="scrim" aria-hidden="true"></div>
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" hidden>
+    <div class="drawer-scroll" data-lenis-prevent>
+      <div class="d-top">
+        <h2 class="d-title" id="dTitle">Icon</h2>
+        <button type="button" class="icon-btn" id="dClose" aria-label="Close details"><i data-icon="Close" data-size="18"></i></button>
+      </div>
+      <div class="d-meta" id="dMeta"></div>
+      <div class="stage-sticky"><div class="stage" id="dStage"><div class="preview" id="dPreview"></div><span class="dims" id="dDims"></span></div></div>
+      <div class="token-row"><span class="sr-only">Token name</span><code id="dToken"></code><button type="button" class="btn btn-sm" id="dCopyToken"><i data-icon="Code" data-size="16"></i>Copy tag</button></div>
+      <div class="variants" id="dVariants" role="group" aria-label="Styles and related icons"></div>
+
+      <div class="field">
+        <label for="dSize">Size <output id="dSizeOut" for="dSize">64px</output></label>
+        <input type="range" id="dSize" min="12" max="512" step="1" value="64" />
+      </div>
+      <div class="field">
+        <label for="dStroke">Stroke weight <output id="dStrokeOut" for="dStroke">1.5</output></label>
+        <input type="range" id="dStroke" min="0.5" max="3" step="0.05" value="1.5" />
+      </div>
+      <div class="field">
+        <div class="lbl" id="dColorLbl">Colour</div>
+        <div class="row">
+          <div class="colorbox"><input type="color" id="dColor" value="#212226" aria-label="Icon colour picker" /><input type="text" id="dColorHex" value="#212226" aria-label="Icon colour hex" maxlength="7" /></div>
+          <div class="swatches" id="dSwatches" aria-labelledby="dColorLbl"></div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="lbl"><span id="dGradLbl">Gradient</span> <button type="button" class="switch" id="dGrad" role="switch" aria-checked="false" aria-labelledby="dGradLbl"></button></div>
+        <div class="row" id="dGradRow" hidden>
+          <div class="colorbox"><input type="color" id="dG1" value="#f2d6a2" aria-label="Gradient start colour" /><input type="text" id="dG1Hex" value="#f2d6a2" maxlength="7" aria-label="Gradient start hex" /></div>
+          <div class="colorbox"><input type="color" id="dG2" value="#8f7bff" aria-label="Gradient end colour" /><input type="text" id="dG2Hex" value="#8f7bff" maxlength="7" aria-label="Gradient end hex" /></div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="lbl"><span id="dBgLbl">Background</span> <button type="button" class="switch" id="dBg" role="switch" aria-checked="false" aria-labelledby="dBgLbl"></button></div>
+        <div id="dBgRow" hidden>
+          <div class="row"><div class="colorbox"><input type="color" id="dBgColor" value="#f2d6a2" aria-label="Background colour" /><input type="text" id="dBgHex" value="#f2d6a2" maxlength="7" aria-label="Background hex" /></div></div>
+          <div class="field"><label for="dRadius">Corner radius <output id="dRadiusOut" for="dRadius">30%</output></label><input type="range" id="dRadius" min="0" max="100" value="30" /></div>
+          <div class="field"><label for="dPad">Padding <output id="dPadOut" for="dPad">6</output></label><input type="range" id="dPad" min="0" max="16" step="0.5" value="6" /></div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="lbl" id="dCodeLbl">SVG code</div>
+        <pre class="code" id="dCode" tabindex="0" aria-labelledby="dCodeLbl"></pre>
+      </div>
+      <p class="credit-note">Free for personal and commercial use. <b>Credit required:</b> <span data-credit></span></p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="aCopySvg"><i data-icon="Copy" data-size="18"></i>Copy SVG</button>
+      <button type="button" class="btn" id="aCopyJsx"><i data-icon="Code" data-size="18"></i>Copy JSX</button>
+      <button type="button" class="btn" id="aDlSvg"><i data-icon="Download" data-size="18"></i>SVG</button>
+      <button type="button" class="btn" id="aDlPng"><i data-icon="Image" data-size="18"></i>PNG</button>
+      <button type="button" class="btn wide" id="aCopyPng"><i data-icon="Paper" data-size="18"></i>Copy PNG to clipboard</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="assets/js/icons-original.js?v=51"></script>
+  <script src="assets/js/icons-extended.js?v=51"></script>
+  <script src="assets/js/icons-cat-animated.js?v=51"></script>
+  <script src="assets/js/icons-cat-office.js?v=51"></script>
+  <script src="assets/js/icons-fit.js?v=51"></script>
+  <script src="assets/js/icons-cms.js?v=51"></script>
+  <script src="assets/js/iconli-core.js?v=51"></script>
+  <script src="assets/js/site.js?v=51"></script>
+  <script src="assets/js/library.js?v=51"></script>
+  <script src="assets/js/splash.js?v=51"></script>
+</body>
+</html>

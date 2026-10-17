@@ -1,0 +1,8 @@
+# Netlify: rebuild the CDN bundle on every deploy (including IconLi Studio publishes)
+[build]
+  command = "node scripts/build.mjs"
+  publish = "."
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

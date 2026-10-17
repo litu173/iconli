@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>IconLi Studio — CMS &amp; Icon Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=61" />
+  <link rel="stylesheet" href="admin.css?v=61" />
+  <script>try { const t = localStorage.getItem('iconli-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+</head>
+<body class="studio">
+  <aside class="st-nav" aria-label="Studio">
+    <a class="brand" href="../index.html" title="Open the live site"><span class="brand-mark" data-mark></span><span>Icon<em>Li</em> <small>Studio</small></span></a>
+    <nav>
+      <button type="button" data-view="icons" aria-current="page"><span data-ic="Grid"></span>Icons</button>
+      <button type="button" data-view="editor"><span data-ic="Pen Tool"></span>Editor</button>
+      <button type="button" data-view="categories"><span data-ic="Layers"></span>Categories</button>
+      <button type="button" data-view="defaults"><span data-ic="Settings"></span>Defaults</button>
+      <button type="button" data-view="publish"><span data-ic="Upload Cloud"></span>Publish <b class="badge" data-pending hidden></b></button>
+    </nav>
+    <div class="st-nav-foot">
+      <p class="hint">Changes stay in this browser until you publish.</p>
+      <button type="button" class="btn btn-sm" data-theme-toggle>Toggle theme</button>
+    </div>
+  </aside>
+
+  <main class="st-main">
+    <!-- Icons -->
+    <section class="view" data-v="icons">
+      <header class="vh"><div><h1>Icons</h1><p class="hint" data-icons-count></p></div><button type="button" class="btn btn-primary" data-new-icon><span data-ic="Plus"></span>New icon</button></header>
+      <div class="st-toolbar">
+        <label class="search"><span class="sr-only">Search</span><span data-ic="Search" class="ui-ic"></span><input type="search" data-q placeholder="Search icons…" /></label>
+        <select class="select" data-fcat aria-label="Category"></select>
+        <select class="select" data-fstatus aria-label="Status">
+          <option value="">All statuses</option><option value="changed">Unpublished changes</option><option value="edited">Edited</option><option value="new">New</option><option value="draft">Drafts</option><option value="hidden">Hidden</option><option value="sig">Signature</option>
+        </select>
+      </div>
+      <div class="st-grid" data-grid></div>
+      <div class="more-row"><button type="button" class="btn" data-more hidden>Show more</button></div>
+    </section>
+
+    <!-- Editor -->
+    <section class="view" data-v="editor" hidden>
+      <header class="vh ed-head">
+        <button type="button" class="icon-btn" data-back aria-label="Back to icons"><span data-ic="Arrow Left"></span></button>
+        <div class="meta">
+          <label class="fld"><span>Name</span><input data-m="name" /></label>
+          <label class="fld"><span>Category</span><select data-m="cat"></select></label>
+          <label class="fld grow"><span>Tags</span><input data-m="tags" placeholder="synonyms, use cases…" /></label>
+          <label class="fld"><span>Status</span><select data-m="status"><option value="published">Published</option><option value="draft">Draft</option><option value="hidden">Hidden</option></select></label>
+          <fieldset class="fld styles" data-m-styles><legend>Styles</legend>
+            <label class="chk"><input type="checkbox" value="outline" checked> Outline</label>
+            <label class="chk"><input type="checkbox" value="solid" checked> Solid</label>
+            <label class="chk"><input type="checkbox" value="duotone" checked> Duotone</label>
+          </fieldset>
+        </div>
+        <div class="ed-actions">
+          <span class="dirty" data-dirty hidden>Unsaved</span>
+          <button type="button" class="btn btn-sm" data-discard>Discard changes</button>
+          <button type="button" class="btn btn-sm" data-restore>Restore original</button>
+          <button type="button" class="btn btn-sm" data-delete hidden>Delete</button>
+          <button type="button" class="btn btn-sm btn-primary" data-save>Save <kbd>⌘S</kbd></button>
+        </div>
+      </header>
+      <div data-editor></div>
+    </section>
+
+    <!-- Categories -->
+    <section class="view" data-v="categories" hidden>
+      <header class="vh"><div><h1>Categories</h1><p class="hint">Rename, reorder, hide or add categories. Hidden categories drop off the live site.</p></div><button type="button" class="btn btn-primary" data-save-cats>Save categories</button></header>
+      <div class="card"><table class="st-table"><thead><tr><th scope="col">Order</th><th scope="col">Key</th><th scope="col">Label</th><th scope="col">Icons</th><th scope="col">Hidden</th></tr></thead><tbody data-cats></tbody></table>
+        <form class="row" data-add-cat><input class="select" name="key" placeholder="key, e.g. vehicles" pattern="[a-z0-9-]+" required aria-label="New category key" /><input class="select" name="label" placeholder="Label, e.g. Vehicles & Transport" required aria-label="New category label" /><button class="btn btn-sm" type="submit">Add category</button></form>
+      </div>
+    </section>
+
+    <!-- Defaults -->
+    <section class="view" data-v="defaults" hidden>
+      <header class="vh"><div><h1>Defaults</h1><p class="hint">Global settings applied to every icon on the live site, the downloads and the CDN library.</p></div><button type="button" class="btn btn-primary" data-save-defaults>Save defaults</button></header>
+      <div class="g24">
+        <div class="s-24 lg-s-10 card">
+          <label class="fld"><span>Default stroke weight <output data-o="stroke"></output></span><input type="range" min="0.5" max="3" step="0.05" data-d="stroke" /></label>
+          <label class="fld"><span>Default export colour</span><span class="colorbox"><input type="color" data-d="color" aria-label="Default colour" /><input type="text" data-d="colorHex" maxlength="7" aria-label="Default colour hex" /></span></label>
+          <label class="fld"><span>Duotone tint strength <output data-o="duotone"></output></span><input type="range" min="0.06" max="0.6" step="0.01" data-d="duotone" /></label>
+          <fieldset class="fld"><legend>Styles generated for every icon</legend>
+            <label class="chk"><input type="checkbox" data-st="outline"> Outline</label>
+            <label class="chk"><input type="checkbox" data-st="solid"> Solid</label>
+            <label class="chk"><input type="checkbox" data-st="duotone"> Duotone</label>
+          </fieldset>
+          <p class="hint">Per-icon styles can still be switched off in the editor.</p>
+        </div>
+        <div class="s-24 lg-s-14 card"><p class="hint">Live preview</p><div class="pv-grid" data-dpreview></div></div>
+      </div>
+    </section>
+
+    <!-- Publish -->
+    <section class="view" data-v="publish" hidden>
+      <header class="vh"><div><h1>Publish</h1><p class="hint">Publishing commits <code>assets/js/icons-cms.js</code> to GitHub, and the site redeploys automatically.</p></div></header>
+      <div class="g24">
+        <div class="s-24 lg-s-14 card">
+          <h2>Pending changes</h2>
+          <ul class="changes" data-changes></ul>
+          <label class="fld"><span>Commit message</span><input data-msg /></label>
+          <div class="row"><button type="button" class="btn btn-primary" data-publish><span data-ic="Upload Cloud"></span>Publish to live site</button><button type="button" class="btn" data-pull>Pull latest from GitHub</button></div>
+          <p class="hint" data-pmsg role="status" aria-live="polite"></p>
+        </div>
+        <div class="s-24 lg-s-10 card">
+          <h2>GitHub connection <span class="hint" data-ghstate></span></h2>
+          <form data-gh>
+            <label class="fld"><span>Owner</span><input name="owner" placeholder="your-github-username" required /></label>
+            <label class="fld"><span>Repository</span><input name="repo" placeholder="iconli" required /></label>
+            <label class="fld"><span>Branch</span><input name="branch" value="main" required /></label>
+            <label class="fld"><span>File path</span><input name="path" value="assets/js/icons-cms.js" required /></label>
+            <label class="fld"><span>Access token</span><input name="token" type="password" autocomplete="off" placeholder="github_pat_…" required /></label>
+            <p class="hint">Use a <b>fine-grained token</b> limited to this one repository, with <b>Contents: Read and write</b>. It's stored only in this browser.</p>
+            <div class="row"><button class="btn btn-sm btn-primary" type="submit">Save connection</button><button class="btn btn-sm" type="button" data-test>Test</button><button class="btn btn-sm" type="button" data-forget>Forget token</button></div>
+          </form>
+          <h2 style="margin-top:22px">Backup</h2>
+          <div class="row"><button type="button" class="btn btn-sm" data-export>Export JSON</button><label class="btn btn-sm">Import JSON<input type="file" accept="application/json" data-import hidden /></label><button type="button" class="btn btn-sm" data-download>Download icons-cms.js</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../assets/js/icons-original.js?v=61"></script>
+  <script src="../assets/js/icons-extended.js?v=61"></script>
+  <script src="../assets/js/icons-cat-animated.js?v=61"></script>
+  <script src="../assets/js/icons-cat-office.js?v=61"></script>
+  <script src="../assets/js/icons-fit.js?v=61"></script>
+  <script src="../assets/js/icons-cms.js?v=61"></script>
+  <script src="../assets/js/iconli-core.js?v=61"></script>
+  <script src="js/path.js?v=61"></script>
+  <script src="js/model.js?v=61"></script>
+  <script src="js/editor.js?v=61"></script>
+  <script src="js/cms.js?v=61"></script>
+</body>
+</html>

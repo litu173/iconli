@@ -1,0 +1,16 @@
+{
+  "name": "iconli",
+  "version": "1.0.0",
+  "description": "IconLi — a free, premium icon library in outline, solid and duotone on a precise 24px grid. Use icons by token name via <iconli-icon> or data-iconli.",
+  "license": "CC-BY-4.0",
+  "author": "Mutaher",
+  "main": "dist/iconli.js",
+  "unpkg": "dist/iconli.js",
+  "jsdelivr": "dist/iconli.js",
+  "files": ["dist", "LICENSE.md", "README.md"],
+  "keywords": ["icons", "svg", "icon-library", "web-component", "duotone", "outline", "solid"],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "serve": "python3 -m http.server 5174"
+  }
+}
