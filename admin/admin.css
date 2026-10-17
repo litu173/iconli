@@ -118,7 +118,7 @@ kbd { font: 600 10px var(--mono); padding: 1px 5px; border-radius: 5px; border: 
 .pv.dark { background: #0b0b20; color: #f1eefc; }
 :root[data-theme='light'] .pv.dark { background: #f6f4fb; color: #212226; }
 
-@media (max-width: 1280px) { .ed { grid-template-columns: 56px minmax(0, 1fr); } .ed-side { grid-column: 1 / -1; position: static; max-height: none; } }
+@media (max-width: 860px) { .ed-side { position: static; max-height: none; } }
 @media (max-width: 860px) {
   body.studio { grid-template-columns: 1fr; }
   .st-nav { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; }
@@ -180,3 +180,40 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 8px; height: 8px; }
 .ed-side, .ed-panel { min-width: 0; }
 .ed-side { overflow-x: hidden; }
 .num input[type='range'] { min-height: 0; height: 4px; padding: 0; border: 0; border-radius: 4px; background: linear-gradient(to right, var(--accent) var(--p, 100%), var(--line-2) var(--p, 100%)); margin: 12px 0 6px; }
+
+/* ---------- App shell (desktop): the nav is fixed, each view fills the window and only its content scrolls ---------- */
+@media (min-width: 861px) {
+  html, body.studio { height: 100%; overflow: hidden; }
+  body.studio { height: 100vh; height: 100dvh; }
+  .st-nav { height: 100vh; height: 100dvh; overflow-y: auto; }
+  .st-main { height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; }
+  .view { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 28px; }
+  .view[hidden] { display: none; }
+  .view > .vh, .view > .st-toolbar { flex: none; }
+  /* Icons: header + search stay put, only the grid scrolls */
+  .view[data-v='icons'] { overflow: hidden; padding-bottom: 0; }
+  .st-scroll { flex: 1; min-height: 0; overflow-y: auto; margin: 0 -8px; padding: 2px 8px 28px; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+  /* Editor: no page scroll. Canvas fits the space left, the side panel scrolls inside itself */
+  .view[data-v='editor'] { overflow: hidden; padding-bottom: 16px; }
+  .view[data-v='editor'] .ed-head { flex: none; margin-bottom: 12px; }
+  .view[data-v='editor'] [data-editor] { flex: 1; min-height: 0; }
+  .ed { height: 100%; grid-template-columns: 56px minmax(0, 1fr) clamp(280px, 26vw, 340px); align-items: stretch; }
+  .ed-tools { position: static; align-self: start; max-height: 100%; overflow-y: auto; }
+  .ed-stage { min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .ed-canvas-wrap { min-height: 0; container-type: size; padding: 10px; }
+  .ed-canvas { width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); max-width: none; }
+  .ed-side { position: static; height: 100%; max-height: none; min-height: 0; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 0; }
+  .ed-side .tabs { flex: none; }
+  .ed-side .ed-panel:not([hidden]) { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+  .ed-side .ed-preview { flex: none; }
+}
+@media (min-width: 861px) and (max-width: 1100px) { .ed-preview .pv-row:first-child { display: none; } }
+.ed-tools { overflow-x: hidden; }
+.corner-row { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 10px; align-items: end; }
+.corner-row .seg.small { margin: 0; }
+.corner-row .num { margin: 0; }
+.sub-lbl { margin: 8px 0 6px; font-size: 12px; font-weight: 600; color: var(--text-2); }
+.sub-lbl .hint { font-weight: 500; font-size: 11.5px; margin: 0; }
+.num > span.scrub { cursor: ew-resize; user-select: none; touch-action: none; }
+.num > span.scrub:hover { color: var(--text); }
+.seg.small button[aria-pressed='true'] { background: var(--accent); color: #fff; }

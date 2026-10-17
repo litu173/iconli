@@ -23,7 +23,7 @@
   if (!WORK) WORK = clone(PUB);
   WORK = Object.assign(clone(EMPTY), WORK);
   const saveWork = () => { try { localStorage.setItem(LS_WORK, JSON.stringify(WORK)); } catch (e) { toast('Browser storage is full, so export a backup.'); } updatePending(); };
-  const applySettings = () => Object.assign(L.settings, { stroke: 1.5, color: '#212226', duotone: 0.22 }, WORK.settings || {}, { styles: Object.assign({ outline: true, solid: true, duotone: true }, (WORK.settings || {}).styles || {}) });
+  const applySettings = () => Object.assign(L.settings, { stroke: 1.5, color: '#212226', duotone: 0.22, corner: 1.5 }, WORK.settings || {}, { styles: Object.assign({ outline: true, solid: true, duotone: true }, (WORK.settings || {}).styles || {}) });
   applySettings();
 
   /* ---------- Catalogue of editable items ---------- */
@@ -116,18 +116,41 @@
       return true;
     }).sort((a, b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
   }
-  function renderIcons(reset = true) {
-    if (reset) shown = 240;
-    const list = filteredItems();
-    $('[data-icons-count]').textContent = `${list.length.toLocaleString()} of ${items().length.toLocaleString()} icon families`;
-    $('[data-grid]').innerHTML = list.slice(0, shown).map((it) => {
+  // Every icon is reachable: the grid renders in pages and loads the next page as you scroll near the end.
+  let curList = [];
+  const card = (it) => {
       const chips = [it.sig ? '<i class="c sig">Signature</i>' : '', !it.base ? '<i class="c new">New</i>' : it.rec ? '<i class="c ed">Edited</i>' : '', it.status === 'draft' ? '<i class="c dr">Draft</i>' : '', it.status === 'hidden' ? '<i class="c hd">Hidden</i>' : '', changed(it.key) ? '<i class="c ch">Unpublished</i>' : ''].join('');
       return `<button type="button" class="st-card ${it.status === 'hidden' ? 'is-hidden' : ''}" data-open="${esc(it.key)}"><span class="th">${thumb(it)}</span><span class="nm">${esc(it.name)}</span><span class="ct">${esc((catList().find((c) => c[0] === it.cat) || [, it.cat])[1])}</span><span class="chips">${chips}</span></button>`;
-    }).join('') || '<p class="hint">No icons match.</p>';
-    $('[data-more]').hidden = shown >= list.length;
+  };
+  function renderIcons(reset = true) {
+    const grid = $('[data-grid]');
+    if (reset) {
+      shown = 240;
+      curList = filteredItems();
+      const all = items().length;
+      $('[data-icons-count]').textContent = curList.length === all ? `All ${all.toLocaleString()} icon families` : `${curList.length.toLocaleString()} of ${all.toLocaleString()} icon families`;
+      grid.innerHTML = curList.slice(0, shown).map(card).join('') || '<p class="hint">No icons match.</p>';
+      const sc = $('[data-scroll]'); if (sc) sc.scrollTop = 0;
+    } else {
+      const from = grid.querySelectorAll('.st-card').length;
+      grid.insertAdjacentHTML('beforeend', curList.slice(from, shown).map(card).join(''));
+    }
+    $('[data-more]').hidden = shown >= curList.length;
+    $('[data-more]').textContent = `Show more (${Math.max(0, curList.length - shown).toLocaleString()} left)`;
   }
+  const nearEnd = () => {
+    if ($('[data-v="icons"]').hidden || shown >= curList.length) return false;
+    const sc = $('[data-scroll]'), r = $('[data-sentinel]').getBoundingClientRect();
+    const bottom = sc && getComputedStyle(sc).overflowY !== 'visible' ? sc.getBoundingClientRect().bottom : innerHeight;
+    return r.top < bottom + 700;
+  };
+  const loadMore = () => { if (shown >= curList.length) return; shown += 240; renderIcons(false); setTimeout(() => nearEnd() && loadMore(), 60); };
+  let sTick = false;
+  const onScroll = () => { if (sTick) return; sTick = true; setTimeout(() => { sTick = false; if (nearEnd()) loadMore(); }, 60); };
+  $('[data-scroll]').addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('scroll', onScroll, { passive: true });
   $('[data-grid]').addEventListener('click', (e) => { const b = e.target.closest('[data-open]'); if (b) openEditor(b.dataset.open); });
-  $('[data-more]').onclick = () => { shown += 240; renderIcons(false); };
+  $('[data-more]').onclick = loadMore;
   let qt; $('[data-q]').oninput = () => { clearTimeout(qt); qt = setTimeout(renderIcons, 120); };
   $('[data-fcat]').onchange = () => renderIcons(); $('[data-fstatus]').onchange = () => renderIcons();
   $('[data-new-icon]').onclick = () => openEditor(null);
@@ -135,6 +158,7 @@
   /* ---------- Editor view ---------- */
   let current = null, dirty = false;
   const editor = new window.IconEditor($('[data-editor]'), { onChange: () => setDirty(true) });
+  window.StudioEditor = editor; // handy from the console
   function setDirty(v) { dirty = v; $('[data-dirty]').hidden = !v; }
   ['name', 'cat', 'tags', 'status'].forEach((k) => $(`[data-m="${k}"]`).addEventListener('input', () => setDirty(true)));
   $$('[data-m-styles] input').forEach((c) => (c.onchange = () => setDirty(true)));
@@ -254,25 +278,25 @@
 
   /* ---------- Defaults ---------- */
   function renderDefaults() {
-    const s = Object.assign({ stroke: 1.5, color: '#212226', duotone: 0.22 }, WORK.settings);
+    const s = Object.assign({ stroke: 1.5, color: '#212226', duotone: 0.22, corner: 1.5 }, WORK.settings);
     const st = Object.assign({ outline: true, solid: true, duotone: true }, s.styles || {});
-    $('[data-d=stroke]').value = s.stroke; $('[data-d=color]').value = s.color; $('[data-d=colorHex]').value = s.color; $('[data-d=duotone]').value = s.duotone;
+    $('[data-d=stroke]').value = s.stroke; $('[data-d=color]').value = s.color; $('[data-d=colorHex]').value = s.color; $('[data-d=duotone]').value = s.duotone; $('[data-d=corner]').value = s.corner;
     $$('[data-st]').forEach((c) => (c.checked = st[c.dataset.st] !== false));
     paintDefaults();
   }
   function readDefaults() {
     const styles = {}; $$('[data-st]').forEach((c) => (styles[c.dataset.st] = c.checked));
-    return { stroke: +$('[data-d=stroke]').value, color: $('[data-d=color]').value, duotone: +$('[data-d=duotone]').value, styles };
+    return { stroke: +$('[data-d=stroke]').value, color: $('[data-d=color]').value, duotone: +$('[data-d=duotone]').value, corner: +$('[data-d=corner]').value, styles };
   }
   function paintDefaults() {
     const s = readDefaults();
-    $('[data-o=stroke]').textContent = s.stroke; $('[data-o=duotone]').textContent = Math.round(s.duotone * 100) + '%';
-    const keep = Object.assign({}, L.settings); L.settings.duotone = s.duotone;
-    const names = ['Heart', 'Rocket', 'Wallet', 'Bell', 'Camera', 'Planet', 'Chat', 'Crown', 'Coffee', 'Home', 'Folder', 'Handshake'];
+    $('[data-o=stroke]').textContent = s.stroke; $('[data-o=duotone]').textContent = Math.round(s.duotone * 100) + '%'; $('[data-o=corner]').textContent = s.corner ? s.corner + 'px' : 'Off';
+    const keep = Object.assign({}, L.settings); L.settings.duotone = s.duotone; L.settings.corner = s.corner;
+    const names = ['Heart', 'Rocket', 'Wallet', 'Bell', 'Camera', 'Crown', 'Diamond', 'Mountain', 'Shape Star Five Point', 'Shape Triangle', 'Home', 'Folder'];
     $('[data-dpreview]').innerHTML = ['outline', 'solid', 'duotone'].map((style) => `<div class="pv-row ${s.styles[style] ? '' : 'off'}"><b>${style}</b>${names.map((n) => { const i = findIcon(n, style); return i ? `<span>${L.render(i, { size: 30, stroke: s.stroke, color: s.color })}</span>` : ''; }).join('')}</div>`).join('');
     Object.assign(L.settings, keep);
   }
-  ['stroke', 'duotone', 'color'].forEach((k) => ($(`[data-d=${k}]`).oninput = () => { if (k === 'color') $('[data-d=colorHex]').value = $('[data-d=color]').value; paintDefaults(); }));
+  ['stroke', 'duotone', 'corner', 'color'].forEach((k) => ($(`[data-d=${k}]`).oninput = () => { if (k === 'color') $('[data-d=colorHex]').value = $('[data-d=color]').value; paintDefaults(); }));
   $('[data-d=colorHex]').oninput = (e) => { if (/^#[\da-f]{6}$/i.test(e.target.value)) { $('[data-d=color]').value = e.target.value; paintDefaults(); } };
   $$('[data-st]').forEach((c) => (c.onchange = paintDefaults));
   $('[data-save-defaults]').onclick = () => {

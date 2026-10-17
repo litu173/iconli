@@ -13,7 +13,7 @@
   let seq = 0;
   const uid = () => 'L' + Date.now().toString(36) + (seq++).toString(36);
   const GEOM = { path: ['d'], circle: ['cx', 'cy', 'r'], ellipse: ['cx', 'cy', 'rx', 'ry'], rect: ['x', 'y', 'width', 'height', 'rx', 'ry'], line: ['x1', 'y1', 'x2', 'y2'], polyline: ['points'], polygon: ['points'] };
-  const PAINT = ['stroke', 'fill', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'clip-rule', 'opacity', 'stroke-opacity', 'fill-opacity', 'stroke-miterlimit'];
+  const PAINT = ['stroke', 'fill', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'clip-rule', 'opacity', 'stroke-opacity', 'fill-opacity', 'stroke-miterlimit', 'stroke-dasharray'];
   const SKIP = new Set(['transform', 'id', 'class', 'style', 'data-role', 'data-anim']);
 
   /* ---------- Parse SVG markup → layers ---------- */
@@ -91,8 +91,9 @@
     const bT = bd ? `translate(${bd.x} ${bd.y}) scale(${bd.s}) translate(-17.5 -17.5)` : '';
     const wrap = (s) => `<g transform="matrix(${f} 0 0 ${f} ${12 - 12 * f} ${12 - 12 * f})"><g transform="${def.t || ''}">${s}</g></g>`;
     const out = [];
+    const sd = L.smoothDef ? L.smoothDef(def) : def; // edit what the site draws (soft corners baked in)
     ['b', 'd', 'o', 'k'].forEach((role) => {
-      const parts = (def[role] || []).join('');
+      const parts = (sd[role] || []).join('');
       if (!parts) return;
       const inner = bd && (role === 'o' || role === 'k') ? `<g transform="${bT}">${parts}</g>` : parts;
       parseMarkup(wrap(inner), { layered: true, role }).layers.forEach((l) => out.push(l));
@@ -172,6 +173,7 @@
       width: ex['stroke-width'] ? parseFloat(ex['stroke-width']) : null,
       cap: ex['stroke-linecap'] || 'round', join: ex['stroke-linejoin'] || 'round',
       opacity: ex.opacity != null ? parseFloat(ex.opacity) : 1,
+      dash: !ex['stroke-dasharray'] || ex['stroke-dasharray'] === 'none' ? 'solid' : /^0(\.0*1)?\b/.test(ex['stroke-dasharray']) ? 'dot' : 'dash',
     };
   }
   function setPaint(ly, pt, raw) {
@@ -189,6 +191,7 @@
     if (pt.cap && pt.cap !== 'round') ex['stroke-linecap'] = pt.cap; else if (!raw) delete ex['stroke-linecap']; else ex['stroke-linecap'] = pt.cap;
     if (pt.join && pt.join !== 'round') ex['stroke-linejoin'] = pt.join; else if (!raw) delete ex['stroke-linejoin']; else ex['stroke-linejoin'] = pt.join;
     if (pt.opacity < 0.999) ex.opacity = String(+pt.opacity.toFixed(2)); else delete ex.opacity;
+    if (pt.stroke && pt.dash === 'dash') ex['stroke-dasharray'] = '3 2.5'; else if (pt.stroke && pt.dash === 'dot') ex['stroke-dasharray'] = '0.01 3'; else delete ex['stroke-dasharray'];
     ly.extra = ex;
   }
 

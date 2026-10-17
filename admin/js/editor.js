@@ -192,7 +192,7 @@
         this.over.appendChild(el('path', { d, class: 'hit', 'data-layer': ly.id }));
       });
       this.drawSelection();
-      this.renderDesign();
+      if (this.liveRefresh) this.syncDesign(); else this.renderDesign();
       this.renderLayers();
       this.renderPreview();
       if (!this.$('[data-panel=code]').hidden) this.$('[data-code]').value = M.toMarkup(this.layers);
@@ -248,6 +248,11 @@
       this.root.querySelectorAll('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== t));
       if (t === 'code') this.$('[data-code]').value = M.toMarkup(this.layers);
     }
+    syncDesign() {
+      const sl = this.selectedLayers(); if (!sl.length) return;
+      const b = M.bounds(sl), vals = { x: b.x, y: b.y, w: b.w, h: b.h };
+      this.$('[data-panel=design]').querySelectorAll('input[data-f]').forEach((i) => { if (i !== document.activeElement && !(this.edit && this.edit.inp === i) && vals[i.dataset.f] != null) i.value = r3(vals[i.dataset.f]); });
+    }
     renderDesign() {
       const box = this.$('[data-panel=design]');
       const sl = this.selectedLayers();
@@ -263,12 +268,22 @@
         h += `<section><h4>Position & size</h4><div class="nums four">${num('X', 'x', b.x)}${num('Y', 'y', b.y)}${num('W', 'w', b.w, 0.5, 'min="0"')}${num('H', 'h', b.h, 0.5, 'min="0"')}</div>
           <div class="row tight"><label class="chk"><input type="checkbox" data-lock ${this.lockRatio ? 'checked' : ''}> Keep proportions</label>${num('Rotate°', 'rot', 0, 15)}</div></section>`;
         const pt = M.getPaint(sl[0]);
-        h += `<section><h4>Appearance</h4>
-          <div class="paint-row"><label class="switchline"><button type="button" class="switch" role="switch" data-p="stroke" aria-checked="${pt.stroke}" aria-label="Stroke"></button> Stroke</label>
-            ${num('Width', 'pw', pt.width || L.settings.stroke || 1.5, 0.25, `min="0.25" max="4" ${pt.stroke ? '' : 'disabled'}`)}</div>
-          <div class="seg plain small" role="group" aria-label="Stroke ends">${['round', 'butt', 'square'].map((c) => `<button type="button" data-cap="${c}" aria-pressed="${pt.cap === c}" ${pt.stroke ? '' : 'disabled'}>${c === 'butt' ? 'Flat' : c[0].toUpperCase() + c.slice(1)} ends</button>`).join('')}</div>
-          <div class="seg plain small" role="group" aria-label="Corners">${['round', 'miter', 'bevel'].map((c) => `<button type="button" data-join="${c}" aria-pressed="${pt.join === c}" ${pt.stroke ? '' : 'disabled'}>${c === 'miter' ? 'Sharp' : c[0].toUpperCase() + c.slice(1)} corners</button>`).join('')}</div>
-          <div class="paint-row"><span class="lbl">Fill</span><div class="seg plain small" role="group" aria-label="Fill">${(raw ? ['none', 'solid'] : ['auto', 'none', 'solid']).map((f) => `<button type="button" data-fill="${f}" aria-pressed="${pt.fill === f}" title="${f === 'auto' ? 'Filled only in Solid / tinted in Duotone' : f === 'none' ? 'Never filled' : 'Always filled'}">${f === 'auto' ? 'By style' : f === 'none' ? 'None' : 'Solid'}</button>`).join('')}</div></div>
+        const dis = pt.stroke ? '' : 'disabled';
+        const cr = this.cornerOf(sl);
+        h += `<section><h4>Corners</h4>${cr === null
+            ? '<p class="hint">This shape has no corners to round.</p>'
+            : `<div class="corner-row"><div class="seg plain small" role="group" aria-label="Corner radius presets">${[[0, 'Sharp'], [1, '1'], [1.5, '1.5'], [2, '2'], [3, '3']].map(([v, t]) => `<button type="button" data-corner="${v}" aria-pressed="${cr !== '' && Math.abs(cr - v) < 0.06}" title="${v ? 'Corner radius ' + v + 'px' : 'Sharp corners (radius 0)'}">${t}</button>`).join('')}</div>${num('Radius', 'corner', cr, 0.25, 'min="0" max="12"')}</div>
+              <p class="hint">Rounds the shape itself, like Figma's corner radius. Signature icons use 1.5–3px.</p>`}</section>`;
+        h += `<section><h4>Stroke</h4>
+          <div class="paint-row"><label class="switchline"><button type="button" class="switch" role="switch" data-p="stroke" aria-checked="${pt.stroke}" aria-label="Stroke"></button> ${pt.stroke ? 'On' : 'Off'}</label>
+            ${num('Width', 'pw', pt.width || L.settings.stroke || 1.5, 0.25, `min="0.25" max="4" ${dis}`)}</div>
+          <p class="sub-lbl">Ends</p>
+          <div class="seg plain small" role="group" aria-label="Stroke ends">${['round', 'butt', 'square'].map((c) => `<button type="button" data-cap="${c}" aria-pressed="${pt.cap === c}" ${dis}>${c === 'butt' ? 'Flat' : c[0].toUpperCase() + c.slice(1)}</button>`).join('')}</div>
+          <p class="sub-lbl">Joins <span class="hint">(where the stroke turns a corner)</span></p>
+          <div class="seg plain small" role="group" aria-label="Stroke joins">${['round', 'miter', 'bevel'].map((c) => `<button type="button" data-join="${c}" aria-pressed="${pt.join === c}" ${dis}>${c[0].toUpperCase() + c.slice(1)}</button>`).join('')}</div>
+          <p class="sub-lbl">Style</p>
+          <div class="seg plain small" role="group" aria-label="Stroke style">${[['solid', 'Solid'], ['dash', 'Dashed'], ['dot', 'Dotted']].map(([k, t]) => `<button type="button" data-dash="${k}" aria-pressed="${pt.dash === k}" ${dis}>${t}</button>`).join('')}</div></section>`;
+        h += `<section><h4>Fill</h4><div class="seg plain small" role="group" aria-label="Fill">${(raw ? ['none', 'solid'] : ['auto', 'none', 'solid']).map((f) => `<button type="button" data-fill="${f}" aria-pressed="${pt.fill === f}" title="${f === 'auto' ? 'Filled only in Solid, tinted in Duotone' : f === 'none' ? 'Never filled' : 'Always filled'}">${f === 'auto' ? 'By style' : f === 'none' ? 'None' : 'Filled'}</button>`).join('')}</div>
           <label class="num wide"><span>Opacity <output>${Math.round(pt.opacity * 100)}%</output></span><input type="range" min="0.1" max="1" step="0.05" value="${pt.opacity}" data-p="opacity" style="--p:${((pt.opacity - 0.1) / 0.9) * 100}%"></label></section>`;
         if (!raw) {
           const motions = window.IconLiAnim ? Object.keys(window.IconLiAnim.MOTIONS) : [];
@@ -305,7 +320,6 @@
       const a = ly.a;
       if (ly.type === 'circle') return `<div class="nums">${num('Centre X', 'cx', a.cx)}${num('Centre Y', 'cy', a.cy)}${num('Radius', 'r', a.r)}</div>`;
       if (ly.type === 'ellipse') return `<div class="nums four">${num('Centre X', 'cx', a.cx)}${num('Centre Y', 'cy', a.cy)}${num('Radius X', 'rx', a.rx)}${num('Radius Y', 'ry', a.ry)}</div>`;
-      if (ly.type === 'rect') return `<div class="nums">${num('Corner radius', 'rrx', a.rx || 0, 0.25, 'min="0"')}</div>`;
       if (ly.type === 'line') return `<div class="nums four">${num('X1', 'x1', a.x1)}${num('Y1', 'y1', a.y1)}${num('X2', 'x2', a.x2)}${num('Y2', 'y2', a.y2)}</div>`;
       return '';
     }
@@ -317,38 +331,96 @@
         this.snapshot(); sl.forEach((l) => (this.layer(l.id).role = b.dataset.role)); this.changed();
       }));
       const lock = box.querySelector('[data-lock]'); if (lock) lock.onchange = () => (this.lockRatio = lock.checked);
-      box.querySelectorAll('input[data-f]').forEach((inp) => (inp.onchange = () => {
-        const v = parseFloat(inp.value); if (!Number.isFinite(v)) return;
-        const k = inp.dataset.f; const b = M.bounds(sl);
-        this.snapshot();
-        if (k === 'x' || k === 'y') mapSel((l) => M.move(l, k === 'x' ? v - b.x : 0, k === 'y' ? v - b.y : 0));
-        else if (k === 'w' || k === 'h') {
-          let sx = k === 'w' ? (b.w ? v / b.w : 1) : 1, sy = k === 'h' ? (b.h ? v / b.h : 1) : 1;
-          if (this.lockRatio) { if (k === 'w') sy = sx; else sx = sy; }
-          mapSel((l) => M.scaleLayer(l, [sx, 0, 0, sy, b.x - sx * b.x, b.y - sy * b.y]));
-        } else if (k === 'rot') {
-          const a = (v * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a), cx = b.x + b.w / 2, cy = b.y + b.h / 2;
-          mapSel((l) => this.rotateLayer(l, [c, s, -s, c, cx - c * cx + s * cy, cy - s * cx - c * cy], cx, cy));
-        } else if (k === 'pw') { sl.forEach((l) => { const ly = this.layer(l.id), p = M.getPaint(ly); p.width = Math.max(0.25, v); M.setPaint(ly, p, this.mode === 'raw'); }); }
-        else if (k === 'nx' || k === 'ny') {
-          const ly = sl[0], q = this.nsel.find((x) => x.id === ly.id), nd = this.layer(ly.id).subs[q.si].nodes[q.ni];
-          const dx = k === 'nx' ? v - nd.x : 0, dy = k === 'ny' ? v - nd.y : 0;
-          ['x', 'ix', 'ox'].forEach((p) => (nd[p] += dx)); ['y', 'iy', 'oy'].forEach((p) => (nd[p] += dy));
-        } else {
-          const ly = this.layer(sl[0].id);
-          if (k === 'rrx') ly.a.rx = Math.max(0, Math.min(v, ly.a.width / 2, ly.a.height / 2));
-          else ly.a[k] = v;
+      // Number fields apply live while you type, scrub (drag the label) or use the arrow keys.
+      // Each edit session starts from the drawing as it was, so relative values (rotation, size) never compound.
+      box.querySelectorAll('input[data-f]').forEach((inp) => {
+        const start = () => { if (!this.edit || this.edit.inp !== inp) this.edit = { inp, base: JSON.stringify(this.layers), saved: false }; };
+        const live = () => {
+          const v = parseFloat(inp.value); if (!Number.isFinite(v)) return;
+          start();
+          if (!this.edit.saved) { this.snapshot(); this.edit.saved = true; this.hist[this.hist.length - 1] = this.edit.base; }
+          this.layers = JSON.parse(this.edit.base);
+          this.applyField(inp.dataset.f, v);
+          this.liveRefresh = true; this.changed(); this.liveRefresh = false;
+        };
+        let t;
+        inp.addEventListener('focus', start);
+        inp.addEventListener('input', () => { clearTimeout(t); t = setTimeout(live, 140); });
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { clearTimeout(t); live(); this.endEdit(); } if (e.key === 'Escape') { clearTimeout(t); if (this.edit && this.edit.saved) this.undo(); this.edit = null; this.renderDesign(); } });
+        inp.addEventListener('change', () => { clearTimeout(t); live(); });
+        inp.addEventListener('blur', () => setTimeout(() => { if (this.edit && this.edit.inp === inp) this.endEdit(); }, 0));
+        // scrub: drag the label left / right (Shift = ×10)
+        const lbl = inp.previousElementSibling;
+        if (lbl && !inp.disabled) {
+          lbl.classList.add('scrub'); lbl.title = 'Drag left or right to change';
+          lbl.onpointerdown = (e) => {
+            e.preventDefault(); lbl.setPointerCapture(e.pointerId);
+            const x0 = e.clientX, v0 = parseFloat(inp.value) || 0, st = parseFloat(inp.step) || 0.5;
+            const min = inp.min !== '' ? +inp.min : -Infinity, max = inp.max !== '' ? +inp.max : Infinity;
+            this.edit = null; start();
+            lbl.onpointermove = (ev) => {
+              const v = Math.min(max, Math.max(min, v0 + Math.round((ev.clientX - x0) / 3) * st * (ev.shiftKey ? 10 : 1)));
+              if (String(v) !== inp.value) { inp.value = r3(v); live(); }
+            };
+            lbl.onpointerup = () => { lbl.onpointermove = lbl.onpointerup = null; this.endEdit(); };
+          };
         }
-        this.changed();
-      }));
+      });
+      box.querySelectorAll('[data-corner]').forEach((b) => (b.onclick = () => { this.snapshot(); this.applyField('corner', +b.dataset.corner); this.changed(); }));
       const setP = (fn) => { this.snapshot(); sl.forEach((l) => { const ly = this.layer(l.id), p = M.getPaint(ly); fn(p); M.setPaint(ly, p, this.mode === 'raw'); }); this.changed(); };
-      box.querySelectorAll('[data-p=stroke]').forEach((b) => (b.onclick = () => setP((p) => { p.stroke = !p.stroke; if (!p.stroke && p.fill === 'auto') p.fill = 'solid'; })));
+      box.querySelectorAll('[data-p=stroke]').forEach((b) => (b.onclick = () => setP((p) => {
+        p.stroke = !p.stroke;
+        if (!p.stroke && p.fill !== 'solid') p.fill = 'solid'; // a shape with neither stroke nor fill would vanish
+        else if (p.stroke && p.fill === 'solid') p.fill = this.mode === 'raw' ? 'none' : 'auto'; // back to a normal outlined shape
+      })));
+      box.querySelectorAll('[data-dash]').forEach((b) => (b.onclick = () => setP((p) => (p.dash = b.dataset.dash))));
       box.querySelectorAll('[data-cap]').forEach((b) => (b.onclick = () => setP((p) => (p.cap = b.dataset.cap))));
       box.querySelectorAll('[data-join]').forEach((b) => (b.onclick = () => setP((p) => (p.join = b.dataset.join))));
       box.querySelectorAll('[data-fill]').forEach((b) => (b.onclick = () => setP((p) => { p.fill = b.dataset.fill; if (p.fill === 'none' && !p.stroke) p.stroke = true; })));
       const op = box.querySelector('[data-p=opacity]');
       if (op) { op.oninput = () => { op.previousElementSibling.querySelector('output').textContent = Math.round(op.value * 100) + '%'; op.style.setProperty('--p', ((op.value - 0.1) / 0.9) * 100 + '%'); }; op.onchange = () => setP((p) => (p.opacity = +op.value)); }
       const cls = box.querySelector('[data-cls]'); if (cls) cls.onchange = () => { this.snapshot(); sl.forEach((l) => (this.layer(l.id).cls = cls.value || null)); this.changed(); };
+    }
+    endEdit() { this.edit = null; this.renderDesign(); }
+    // Corner radius of the selection: a number, '' when mixed, null when nothing has corners
+    cornerOf(sl) {
+      const rs = sl.map((l) => (l.type === 'rect' ? l.a.rx || 0 : l.type === 'path' ? P.cornerRadius(l.subs) : null)).filter((v) => v !== null);
+      if (!rs.length) return null;
+      return rs.every((v) => Math.abs(v - rs[0]) < 0.06) ? rs[0] : '';
+    }
+    applyField(k, v) {
+      const ids = this.sel, sl = this.selectedLayers();
+      if (!sl.length) return;
+      const b = M.bounds(sl);
+      const mapSel = (fn) => { this.layers = this.layers.map((l) => (ids.has(l.id) ? fn(l) : l)); };
+      if (k === 'x' || k === 'y') mapSel((l) => M.move(l, k === 'x' ? v - b.x : 0, k === 'y' ? v - b.y : 0));
+      else if (k === 'w' || k === 'h') {
+        v = Math.max(0.25, v);
+        let sx = k === 'w' ? (b.w ? v / b.w : 1) : 1, sy = k === 'h' ? (b.h ? v / b.h : 1) : 1;
+        if (this.lockRatio) { if (k === 'w') sy = sx; else sx = sy; }
+        mapSel((l) => M.scaleLayer(l, [sx, 0, 0, sy, b.x - sx * b.x, b.y - sy * b.y]));
+      } else if (k === 'rot') {
+        const a = (v * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a), cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        mapSel((l) => this.rotateLayer(l, [c, s, -s, c, cx - c * cx + s * cy, cy - s * cx - c * cy], cx, cy));
+      } else if (k === 'corner') {
+        v = Math.max(0, v);
+        mapSel((l) => {
+          const c = M.clone(l);
+          if (c.type === 'rect') { c.a.rx = Math.min(v, c.a.width / 2, c.a.height / 2); delete c.a.ry; }
+          else if (c.type === 'path') c.subs = P.setCorners(c.subs, v);
+          return c;
+        });
+      } else if (k === 'pw') sl.forEach((l) => { const ly = this.layer(l.id), p = M.getPaint(ly); p.width = Math.max(0.25, v); M.setPaint(ly, p, this.mode === 'raw'); });
+      else if (k === 'nx' || k === 'ny') {
+        const ly = this.layer(sl[0].id), q = this.nsel.find((x) => x.id === ly.id); if (!q) return;
+        const nd = ly.subs[q.si].nodes[q.ni], dx = k === 'nx' ? v - nd.x : 0, dy = k === 'ny' ? v - nd.y : 0;
+        ['x', 'ix', 'ox'].forEach((p) => (nd[p] += dx)); ['y', 'iy', 'oy'].forEach((p) => (nd[p] += dy));
+      } else {
+        const ly = this.layer(sl[0].id);
+        if (k === 'rrx') ly.a.rx = Math.max(0, Math.min(v, ly.a.width / 2, ly.a.height / 2));
+        else if (k === 'r' || k === 'rx' || k === 'ry') ly.a[k] = Math.max(0.1, v);
+        else ly.a[k] = v;
+      }
     }
     rotateLayer(l, m, cx, cy) {
       if (l.type === 'circle') { const [x, y] = P.ap(m, l.a.cx, l.a.cy); const c = M.clone(l); c.a.cx = x; c.a.cy = y; return c; }

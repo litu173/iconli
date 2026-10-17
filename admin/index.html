@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../assets/css/style.css?v=81" />
-  <link rel="stylesheet" href="admin.css?v=81" />
+  <link rel="stylesheet" href="../assets/css/style.css?v=87" />
+  <link rel="stylesheet" href="admin.css?v=87" />
   <script>try { const t = localStorage.getItem('iconli-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 </head>
 <body class="studio">
@@ -39,8 +39,10 @@
           <option value="">All statuses</option><option value="changed">Unpublished changes</option><option value="edited">Edited</option><option value="new">New</option><option value="draft">Drafts</option><option value="hidden">Hidden</option><option value="sig">Signature</option>
         </select>
       </div>
-      <div class="st-grid" data-grid></div>
-      <div class="more-row"><button type="button" class="btn" data-more hidden>Show more</button></div>
+      <div class="st-scroll" data-scroll>
+        <div class="st-grid" data-grid></div>
+        <div class="more-row" data-sentinel><button type="button" class="btn" data-more hidden>Show more</button></div>
+      </div>
     </section>
 
     <!-- Editor -->
@@ -85,6 +87,8 @@
           <label class="fld"><span>Default stroke weight <output data-o="stroke"></output></span><input type="range" min="0.5" max="3" step="0.05" data-d="stroke" /></label>
           <label class="fld"><span>Default export colour</span><span class="colorbox"><input type="color" data-d="color" aria-label="Default colour" /><input type="text" data-d="colorHex" maxlength="7" aria-label="Default colour hex" /></span></label>
           <label class="fld"><span>Duotone tint strength <output data-o="duotone"></output></span><input type="range" min="0.06" max="0.6" step="0.01" data-d="duotone" /></label>
+          <label class="fld"><span>Soft corners on extended icons <output data-o="corner"></output></span><input type="range" min="0" max="3" step="0.25" data-d="corner" /></label>
+          <p class="hint">Rounds sharp corners so extended icons match the Signature set (1.5px recommended). Icons you draw in the editor keep exactly what you drew.</p>
           <fieldset class="fld"><legend>Styles generated for every icon</legend>
             <label class="chk"><input type="checkbox" data-st="outline"> Outline</label>
             <label class="chk"><input type="checkbox" data-st="solid"> Solid</label>
@@ -127,18 +131,18 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="../assets/js/icons-original.js?v=81"></script>
-  <script src="../assets/js/icons-extended.js?v=81"></script>
-  <script src="../assets/js/icons-cat-animated.js?v=81"></script>
-  <script src="../assets/js/icons-cat-office.js?v=81"></script>
-  <script src="../assets/js/icons-cat-glyphs.js?v=81"></script>
-  <script src="../assets/js/icons-cat-variants.js?v=81"></script>
-  <script src="../assets/js/icons-fit.js?v=81"></script>
-  <script src="../assets/js/icons-cms.js?v=81"></script>
-  <script src="../assets/js/iconli-core.js?v=81"></script>
-  <script src="js/path.js?v=81"></script>
-  <script src="js/model.js?v=81"></script>
-  <script src="js/editor.js?v=81"></script>
-  <script src="js/cms.js?v=81"></script>
+  <script src="../assets/js/icons-original.js?v=87"></script>
+  <script src="../assets/js/icons-extended.js?v=87"></script>
+  <script src="../assets/js/icons-cat-animated.js?v=87"></script>
+  <script src="../assets/js/icons-cat-office.js?v=87"></script>
+  <script src="../assets/js/icons-cat-glyphs.js?v=87"></script>
+  <script src="../assets/js/icons-cat-variants.js?v=87"></script>
+  <script src="../assets/js/icons-fit.js?v=87"></script>
+  <script src="../assets/js/icons-cms.js?v=87"></script>
+  <script src="../assets/js/iconli-core.js?v=87"></script>
+  <script src="js/path.js?v=87"></script>
+  <script src="js/model.js?v=87"></script>
+  <script src="js/editor.js?v=87"></script>
+  <script src="js/cms.js?v=87"></script>
 </body>
 </html>

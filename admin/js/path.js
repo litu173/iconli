@@ -245,5 +245,77 @@
   }
   const snap = (v, step) => (step ? Math.round(v / step) * step : v);
 
-  window.IconPath = { parse, serialize, fromShape, parseTransform, transform, translate, mul, ap, clone, nearest, insertNode, segments, bbox, isLine, snap, num, I };
+  /* ---------- Corners (Figma-style corner radius for paths) ---------- */
+  const isCorner = (n) => Math.hypot(n.ix - n.x, n.iy - n.y) < EPS && Math.hypot(n.ox - n.x, n.oy - n.y) < EPS;
+  const unit = (ax, ay, bx, by) => { const l = Math.hypot(bx - ax, by - ay) || 1; return [(bx - ax) / l, (by - ay) / l, l]; };
+  // Round every sharp corner between two straight segments with a circular fillet of radius r (clamped to the edges)
+  function roundCorners(subs, r) {
+    return subs.map((s) => {
+      const n = s.nodes, N = n.length, out = [];
+      if (N < 3 && !s.closed) return { closed: s.closed, nodes: n.map((x) => Object.assign({}, x)) };
+      for (let i = 0; i < N; i++) {
+        const nd = n[i], hasP = s.closed || i > 0, hasN = s.closed || i < N - 1;
+        const p = n[(i - 1 + N) % N], q = n[(i + 1) % N];
+        if (!hasP || !hasN || !isCorner(nd) || !isLine(p, nd) || !isLine(nd, q)) { out.push(Object.assign({}, nd)); continue; }
+        const [ux, uy, la] = unit(p.x, p.y, nd.x, nd.y), [vx, vy, lb] = unit(nd.x, nd.y, q.x, q.y);
+        const phi = Math.acos(Math.max(-1, Math.min(1, ux * vx + uy * vy)));
+        if (phi < 0.05 || phi > 3.1) { out.push(Object.assign({}, nd)); continue; }
+        const t = Math.min(r * Math.tan(phi / 2), la * 0.5, lb * 0.5);
+        const rr = t / Math.tan(phi / 2), h = (4 / 3) * Math.tan(phi / 4) * rr;
+        const A = [nd.x - ux * t, nd.y - uy * t], B = [nd.x + vx * t, nd.y + vy * t];
+        out.push({ x: A[0], y: A[1], ix: A[0], iy: A[1], ox: A[0] + ux * h, oy: A[1] + uy * h });
+        out.push({ x: B[0], y: B[1], ix: B[0] - vx * h, iy: B[1] - vy * h, ox: B[0], oy: B[1] });
+      }
+      return { closed: s.closed, nodes: out };
+    });
+  }
+  // Find rounded corners: a short curve between two straight segments whose extensions meet near it
+  function findFillets(s) {
+    const n = s.nodes, N = n.length, out = [];
+    const segs = N < 2 ? 0 : s.closed ? N : N - 1;
+    for (let i = 0; i < segs; i++) {
+      const a = n[i], b = n[(i + 1) % N];
+      if (isLine(a, b)) continue;
+      const hasP = s.closed || i > 0, hasN = s.closed || i + 2 < N;
+      if (!hasP || !hasN) continue;
+      const p = n[(i - 1 + N) % N], q = n[(i + 2) % N];
+      if (!isLine(p, a) || !isLine(b, q) || Math.hypot(b.x - a.x, b.y - a.y) > 10) continue;
+      const [ux, uy] = unit(p.x, p.y, a.x, a.y), [vx, vy] = unit(b.x, b.y, q.x, q.y);
+      const den = ux * vy - uy * vx;
+      if (Math.abs(den) < 1e-4) continue; // parallel: a real arc, not a corner
+      const tA = ((b.x - a.x) * vy - (b.y - a.y) * vx) / den;
+      const I = [a.x + ux * tA, a.y + uy * tA];
+      const tB = (I[0] - b.x) * -vx + (I[1] - b.y) * -vy;
+      if (tA <= 0 || tB <= 0 || tA > 8 || tB > 8) continue;
+      const phi = Math.acos(Math.max(-1, Math.min(1, ux * vx + uy * vy)));
+      out.push({ i, I, r: ((tA + tB) / 2) / Math.tan(phi / 2) });
+    }
+    return out;
+  }
+  // Undo rounding: collapse each fillet back into one sharp corner
+  function sharpenCorners(subs) {
+    return subs.map((s) => {
+      const f = findFillets(s);
+      if (!f.length) return { closed: s.closed, nodes: s.nodes.map((x) => Object.assign({}, x)) };
+      const N = s.nodes.length, drop = new Set(), put = {};
+      f.forEach(({ i, I }) => { const j = (i + 1) % N; if (drop.has(i) || put[i]) return; put[i] = I; drop.add(j); });
+      const nodes = [];
+      s.nodes.forEach((nd, k) => { if (drop.has(k) && !put[k]) return; if (put[k]) { const [x, y] = put[k]; nodes.push({ x, y, ix: x, iy: y, ox: x, oy: y }); } else nodes.push(Object.assign({}, nd)); });
+      return { closed: s.closed, nodes };
+    });
+  }
+  // Current corner radius of a path: the typical fillet radius, 0 when it only has sharp corners, null when it has no corners
+  function cornerRadius(subs) {
+    const rs = []; let sharp = 0;
+    subs.forEach((s) => {
+      findFillets(s).forEach((f) => rs.push(f.r));
+      const N = s.nodes.length;
+      s.nodes.forEach((nd, i) => { if ((s.closed || (i > 0 && i < N - 1)) && isCorner(nd) && isLine(s.nodes[(i - 1 + N) % N], nd) && isLine(nd, s.nodes[(i + 1) % N])) sharp++; });
+    });
+    if (rs.length) { rs.sort((a, b) => a - b); return rs[Math.floor(rs.length / 2)]; }
+    return sharp ? 0 : null;
+  }
+  const setCorners = (subs, r) => { const sh = sharpenCorners(subs); return r > 0 ? roundCorners(sh, r) : sh; };
+
+  window.IconPath = { roundCorners, sharpenCorners, cornerRadius, setCorners, parse, serialize, fromShape, parseTransform, transform, translate, mul, ap, clone, nearest, insertNode, segments, bbox, isLine, snap, num, I };
 })();

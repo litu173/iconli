@@ -782,7 +782,7 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
   const BASE_STROKE = 1.5; // geometry is drawn at 1.5; render strokes scale from here
   /* CMS data (assets/js/icons-cms.js, written by the admin's Publish). Drafts never reach the live catalogue. */
   const CMS = (typeof window !== 'undefined' && window.ICONLI_CMS) || {};
-  const SETTINGS = Object.assign({ stroke: 1.5, color: '#212226', duotone: 0.22, styles: { outline: true, solid: true, duotone: true } }, CMS.settings || {});
+  const SETTINGS = Object.assign({ stroke: 1.5, color: '#212226', duotone: 0.22, corner: 1.5, styles: { outline: true, solid: true, duotone: true } }, CMS.settings || {});
   SETTINGS.styles = Object.assign({ outline: true, solid: true, duotone: true }, (CMS.settings || {}).styles || {});
   const RECS = CMS.icons || {};
   const live = (rec) => rec && (rec.status || 'published') === 'published';
@@ -802,10 +802,101 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
   }
   const slug = (s) => s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+  /* Soft corners: the Signature set never has sharp geometric corners (objects use ~1.5–3px radii).
+     Every corner where two straight segments meet is rounded with a true circular fillet (clamped to the edges),
+     so extended icons match. Studio-drawn icons (def.cms) keep exactly what was drawn. */
+  const fmt = (v) => { const r = Math.round(v * 1000) / 1000; return String(Object.is(r, -0) ? 0 : r); };
+  function absSegs(d) {
+    const t = String(d).match(/[MmLlHhVvCcSsQqTtAaZz]|-?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) || [];
+    const subs = []; let i = 0, cmd = '', x = 0, y = 0, sx = 0, sy = 0, sub = null, lc = null, lq = null;
+    const n = () => +t[i++];
+    while (i < t.length) {
+      if (/[a-zA-Z]/.test(t[i])) cmd = t[i++];
+      const rel = cmd === cmd.toLowerCase(), C = cmd.toUpperCase(), ox = rel ? x : 0, oy = rel ? y : 0;
+      if (C === 'Z') { if (sub) { sub.closed = true; x = sx; y = sy; } sub = null; lc = lq = null; continue; }
+      if (C === 'M') { x = n() + ox; y = n() + oy; sx = x; sy = y; sub = { start: [x, y], segs: [], closed: false }; subs.push(sub); cmd = rel ? 'l' : 'L'; lc = lq = null; continue; }
+      if (!sub) { sub = { start: [x, y], segs: [], closed: false }; subs.push(sub); }
+      let seg;
+      if (C === 'L') { const nx = n() + ox, ny = n() + oy; seg = { t: 'L', p: [nx, ny] }; }
+      else if (C === 'H') seg = { t: 'L', p: [n() + (rel ? x : 0), y] };
+      else if (C === 'V') seg = { t: 'L', p: [x, n() + (rel ? y : 0)] };
+      else if (C === 'C') { const a = [n() + ox, n() + oy, n() + ox, n() + oy, n() + ox, n() + oy]; seg = { t: 'C', c: a.slice(0, 4), p: a.slice(4) }; }
+      else if (C === 'S') { const r1 = lc ? [2 * x - lc[0], 2 * y - lc[1]] : [x, y]; const a = [n() + ox, n() + oy, n() + ox, n() + oy]; seg = { t: 'C', c: [r1[0], r1[1], a[0], a[1]], p: a.slice(2) }; }
+      else if (C === 'Q') { const a = [n() + ox, n() + oy, n() + ox, n() + oy]; seg = { t: 'Q', c: a.slice(0, 2), p: a.slice(2) }; }
+      else if (C === 'T') { const q = lq ? [2 * x - lq[0], 2 * y - lq[1]] : [x, y]; seg = { t: 'Q', c: q, p: [n() + ox, n() + oy] }; }
+      else if (C === 'A') { const a = [n(), n(), n(), n(), n()]; seg = { t: 'A', a, p: [n() + ox, n() + oy] }; }
+      else { i++; continue; }
+      lc = seg.t === 'C' ? seg.c.slice(2) : null; lq = seg.t === 'Q' ? seg.c : null;
+      seg.from = [x, y]; x = seg.p[0]; y = seg.p[1];
+      if (!(seg.t === 'L' && Math.hypot(x - seg.from[0], y - seg.from[1]) < 1e-6)) sub.segs.push(seg);
+    }
+    return subs;
+  }
+  function roundD(d, R) {
+    const subs = absSegs(d);
+    let out = '';
+    subs.forEach((s) => {
+      const segs = s.segs.slice();
+      if (s.closed && segs.length) { const last = segs[segs.length - 1].p; if (Math.hypot(last[0] - s.start[0], last[1] - s.start[1]) > 1e-6) segs.push({ t: 'L', from: last, p: s.start.slice(), close: true }); }
+      const N = segs.length;
+      if (!N) { out += `M${fmt(s.start[0])} ${fmt(s.start[1])}` + (s.closed ? 'Z' : ''); return; }
+      const len = (g) => Math.hypot(g.p[0] - g.from[0], g.p[1] - g.from[1]);
+      const corner = new Array(N).fill(null); // corner[k]: fillet at the end of segment k
+      for (let k = 0; k < N; k++) {
+        const nk = k + 1 < N ? k + 1 : s.closed ? 0 : -1;
+        if (nk < 0) continue;
+        const a = segs[k], b = segs[nk];
+        if (a.t !== 'L' || b.t !== 'L') continue;
+        const la = len(a), lb = len(b);
+        const u = [(a.p[0] - a.from[0]) / la, (a.p[1] - a.from[1]) / la], v = [(b.p[0] - b.from[0]) / lb, (b.p[1] - b.from[1]) / lb];
+        const phi = Math.acos(Math.max(-1, Math.min(1, u[0] * v[0] + u[1] * v[1])));
+        if (phi < 0.2 || phi > 3.0) continue;
+        let tt = R * Math.tan(phi / 2);
+        tt = Math.min(tt, la * 0.48, lb * 0.48);
+        const rr = tt / Math.tan(phi / 2), h = (4 / 3) * Math.tan(phi / 4) * rr, V = a.p;
+        corner[k] = { t: tt, A: [V[0] - u[0] * tt, V[1] - u[1] * tt], B: [V[0] + v[0] * tt, V[1] + v[1] * tt], c1: [V[0] - u[0] * (tt - h), V[1] - u[1] * (tt - h)], c2: [V[0] + v[0] * (tt - h), V[1] + v[1] * (tt - h)] };
+      }
+      const P = (p) => `${fmt(p[0])} ${fmt(p[1])}`;
+      const lastC = s.closed ? corner[N - 1] : null;
+      out += 'M' + P(lastC ? lastC.B : s.start);
+      segs.forEach((g, k) => {
+        const cn = corner[k];
+        if (g.t === 'L') out += 'L' + P(cn ? cn.A : g.p);
+        else if (g.t === 'C') out += 'C' + P(g.c.slice(0, 2)) + ' ' + P(g.c.slice(2)) + ' ' + P(g.p);
+        else if (g.t === 'Q') out += 'Q' + P(g.c) + ' ' + P(g.p);
+        else out += `A${g.a.map(fmt).join(' ')} ${P(g.p)}`;
+        if (cn) out += 'C' + P(cn.c1) + ' ' + P(cn.c2) + ' ' + P(cn.B);
+      });
+      if (s.closed) out += 'Z';
+    });
+    return out;
+  }
+  const smoothCache = new WeakMap();
+  function smoothParts(arr, R) {
+    return (arr || []).map((el) => el
+      .replace(/(<path\b[^>]*?\sd=")([^"]+)(")/g, (m, a, d, b) => { try { return a + roundD(d, R) + b; } catch (e) { return m; } })
+      .replace(/<rect\b([^>]*?)\/>/g, (m, at) => {
+        const g = (k) => { const x = at.match(new RegExp(`\\s${k}="([^"]*)"`)); return x ? parseFloat(x[1]) : 0; };
+        const w = g('width'), h = g('height'), rx = g('rx');
+        if (rx >= R * 0.66 || !w || !h) return m;
+        const nr = fmt(Math.min(R, w / 3, h / 3));
+        return '<rect' + (/\srx="/.test(at) ? at.replace(/\srx="[^"]*"/, ` rx="${nr}"`) : at + ` rx="${nr}"`) + '/>';
+      }));
+  }
+  // The def as it is drawn on the site (soft corners baked in). Studio-drawn icons are returned untouched.
+  function smoothDef(def) {
+    const R = +SETTINGS.corner || 0;
+    if (!R || def.cms || def.sharp) return def;
+    let c = smoothCache.get(def);
+    if (!c || c.R !== R) { c = { R, def: Object.assign({}, def, { b: smoothParts(def.b, R), d: smoothParts(def.d, R * 0.67), o: smoothParts(def.o, R * 0.67), k: def.k }) }; smoothCache.set(def, c); }
+    return c.def;
+  }
+
   /* Extended icons: compose body for each style from b / d / o parts. */
-  function extBody(def, style, swIn) {
+  function extBody(def0, style, swIn) {
+    const def = smoothDef(def0);
     // fit: optical scale (Signature objects span ~19–20px); strokes are counter-scaled to stay true.
-    const f = def.fit || 1;
+    const f = def0.fit || 1;
     const sw = +(swIn / f).toFixed(4);
     const join = (a) => (a || []).join('');
     const strokeAttrs = `stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"`;
@@ -997,7 +1088,7 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
 
   window.IconLi = Object.assign(window.IconLi || {}, {
     icons, categories: CATEGORIES, render, slug, get, svg, tokens: () => [...bySlug.keys()], fitTable, BASE_STROKE, version: '1.0.0',
-    settings: SETTINGS, cms: CMS, renderDef, renderBody, layersToDef,
+    settings: SETTINGS, cms: CMS, renderDef, renderBody, layersToDef, smoothDef,
     source: { orig: ORIG, ext: window.ICONLI_EXT || [] },
   });
 })();
