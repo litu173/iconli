@@ -10,16 +10,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css?v=51" />
+  <link rel="stylesheet" href="assets/css/style.css?v=81" />
   <script>
     try { const t = localStorage.getItem('iconli-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
     // Hide page content until the splash/loader hands over; a safety net reveals it if scripts fail.
     document.documentElement.classList.add('is-loading');
-    // The splash intro plays only on the first load of the site, on the home page (once per session; ?intro replays it).
+    // The splash intro plays every time the home page loads (never on other pages).
     try {
       const home = /(^|\/)(index\.html)?$/.test(location.pathname);
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (home && !reduce && (sessionStorage.getItem('iconli-intro') !== '1' || /[?&]intro\b/.test(location.search))) document.documentElement.classList.add('show-intro');
+      if (home && !reduce) document.documentElement.classList.add('show-intro');
     } catch (e) {}
     setTimeout(function () { if (!window.IconLiSplash) document.documentElement.classList.remove('is-loading'); }, 6000);
   </script>
@@ -185,9 +185,9 @@ IconLi.hydrate(container);     <span class="tok-c">// re-scan for data-iconli in
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="dist/iconli.js?v=51"></script>
-  <script src="assets/js/site.js?v=51"></script>
-  <script src="assets/js/docs.js?v=51"></script>
-  <script src="assets/js/splash.js?v=51"></script>
+  <script src="dist/iconli.js?v=81"></script>
+  <script src="assets/js/site.js?v=81"></script>
+  <script src="assets/js/docs.js?v=81"></script>
+  <script src="assets/js/splash.js?v=81"></script>
 </body>
 </html>

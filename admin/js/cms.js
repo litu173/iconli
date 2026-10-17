@@ -39,7 +39,14 @@
     const fam = new Map();
     L.source.orig.forEach((row) => { if (!fam.has(row[1])) fam.set(row[1], []); fam.get(row[1]).push(row); });
     fam.forEach((rows, name) => items.set('o:' + name, { key: 'o:' + name, name, cat: rows[0][2], tags: '', sig: true, base: { type: 'orig', rows } }));
-    L.source.ext.forEach((def) => items.set('x:' + def.cat + '/' + def.name, { key: 'x:' + def.cat + '/' + def.name, name: def.name, cat: def.cat, tags: def.tags || '', sig: false, base: { type: 'ext', def } }));
+    // Modifier families ("Folder Lock") have no category of their own: they inherit the base icon's
+    const liveCat = new Map();
+    L.icons.forEach((i) => { if (!liveCat.has(i.name)) liveCat.set(i.name, i.cat); });
+    L.source.ext.forEach((def) => {
+      const key = 'x:' + def.cat + '/' + def.name;
+      if (def.comp) { if (liveCat.has(def.name)) items.set(key, { key, name: def.name, cat: liveCat.get(def.name), tags: def.tags || '', sig: false, base: { type: 'comp', def } }); return; }
+      items.set(key, { key, name: def.name, cat: def.cat, tags: def.tags || '', sig: false, base: { type: 'ext', def } });
+    });
     return items;
   }
   const BASE = baseItems();
@@ -63,6 +70,7 @@
       if (r && r.kind === 'layers') return L.renderDef(L.layersToDef(r), 'outline', { size });
       if (r && r.kind === 'raw') return L.renderBody(r.bodies.outline || Object.values(r.bodies)[0], { size });
       if (it.base && it.base.type === 'ext') return L.renderDef(it.base.def, 'outline', { size });
+      if (it.base && it.base.type === 'comp') { const ic = L.icons.find((i) => i.name === it.base.def.name && i.style === 'outline'); return ic ? L.render(ic, { size }) : ''; }
       if (it.base && it.base.type === 'orig') { const row = it.base.rows.find((x) => x[3] === 'outline') || it.base.rows[0]; return L.renderBody(row[4], { size }); }
     } catch (e) { /* broken drawing */ }
     return '';
@@ -130,11 +138,22 @@
   function setDirty(v) { dirty = v; $('[data-dirty]').hidden = !v; }
   ['name', 'cat', 'tags', 'status'].forEach((k) => $(`[data-m="${k}"]`).addEventListener('input', () => setDirty(true)));
   $$('[data-m-styles] input').forEach((c) => (c.onchange = () => setDirty(true)));
+  // Detach a modifier family into plain layers: the base drawing + the badge (open strokes) + its gap (knockout)
+  function compLayers(def) {
+    const m = (window.ICONLI_MODS || {})[def.comp.mod];
+    const b = BASE.get([...BASE.keys()].find((k) => BASE.get(k).name === def.comp.base && BASE.get(k).base && BASE.get(k).base.type !== 'comp'));
+    let layers = [];
+    if (b && b.base.type === 'ext') layers = M.defToLayers(b.base.def);
+    else if (b && b.base.type === 'orig') { const row = b.base.rows.find((x) => x[3] === 'outline') || b.base.rows[0]; layers = M.rawToRoles(row[4]); }
+    if (m) { M.parseMarkup(m.g, { layered: true, role: 'o' }).layers.forEach((l) => layers.push(l)); M.parseMarkup(m.k, { layered: true, role: 'k' }).layers.forEach((l) => layers.push(l)); }
+    return layers;
+  }
   function editorDataFor(it) {
     const r = it.rec;
     if (r && r.kind === 'layers') return { mode: 'layered', layers: M.recordToLayers(r) };
     if (r && r.kind === 'raw') { const bodies = {}; let unsup = []; Object.keys(r.bodies).forEach((s) => { const x = M.rawToLayers(r.bodies[s]); bodies[s] = x.layers; unsup = unsup.concat(x.unsupported); }); return { mode: 'raw', bodies, unsupported: [...new Set(unsup)] }; }
     if (it.base && it.base.type === 'ext') return { mode: 'layered', layers: M.defToLayers(it.base.def) };
+    if (it.base && it.base.type === 'comp') return { mode: 'layered', layers: compLayers(it.base.def) };
     if (it.base && it.base.type === 'orig') {
       const bodies = {}; let unsup = [];
       it.base.rows.forEach(([, , , style, body]) => { const x = M.rawToLayers(body); bodies[style] = x.layers; unsup = unsup.concat(x.unsupported); });

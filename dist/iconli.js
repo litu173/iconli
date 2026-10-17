@@ -525,6 +525,134 @@ window.ICONLI_ORIG=[["o4","Home","interface","outline","<g><path d=\"M10.71 4.31
   add('animated', 'Pencil Write', 'edit draw sign ' + T, { b: [A('write', p('M15.2 4.3a2.1 2.1 0 0 1 3 0l1.5 1.5a2.1 2.1 0 0 1 0 3L9.4 19.1l-4.65 1.15 1.15-4.65Z'))], o: [p('M13.5 20.5h6.5')] });
 })();
 
+/* ---- icons-cat-glyphs.js ---- */
+/* IconLi — Letters & Numbers, Currency, Math & Symbols, Shapes & Geometry.
+ * Glyphs are drawn once in a 7×10 box (x 8.5–15.5, y 7–17) and shipped three ways:
+ * plain (scaled up, stroke kept true), inside a circle and inside a rounded square (outline / solid / duotone).
+ */
+(function () {
+  const { add, p, c, e, rot } = window.IconLiDSL;
+  const CIRC = c(12, 12, 9.25);
+  const SQR = `<rect x="2.75" y="2.75" width="18.5" height="18.5" rx="5"/>`;
+  function family(cat, name, glyph, tags, opts = {}) {
+    const g = Array.isArray(glyph) ? glyph : [glyph];
+    add(cat, name, tags, { o: g, fit: opts.plainFit || 1.4 });
+    add(cat, name + ' Circle', tags + ' circle round badge', { b: [CIRC], d: g, fit: 1});
+    add(cat, name + ' Square', tags + ' square box badge', { b: [SQR], d: g, fit: 1 });
+  }
+  // flipping a glyph inside a container must not flip the container, so bake "t" into the glyph group instead
+  const tg = (t, g) => (t ? [`<g transform="${t}">${(Array.isArray(g) ? g : [g]).join('')}</g>`] : g);
+
+  /* ---------- Letters ---------- */
+  const LETTERS = {
+    A: p('M8.5 17 12 7l3.5 10M9.75 13.5h4.5'),
+    B: p('M9 17V7h3.25a2.5 2.5 0 0 1 0 5H9h3.75a2.5 2.5 0 0 1 0 5Z'),
+    C: p('M15.5 8.6a5 5 0 1 0 0 6.8'),
+    D: p('M9 7h2.25a5 5 0 0 1 0 10H9Z'),
+    E: p('M15 7H9v10h6M9 12h5'),
+    F: p('M15 7H9v10M9 12h5'),
+    G: p('M15.5 8.6A5 5 0 1 0 17 12h-4.25'),
+    H: p('M9 7v10M15 7v10M9 12h6'),
+    I: p('M12 7v10M10 7h4M10 17h4'),
+    J: p('M14.5 7v7a2.75 2.75 0 0 1-5.5 0'),
+    K: p('M9 7v10M15 7l-6 6M11.25 10.75 15 17'),
+    L: p('M9 7v10h6'),
+    M: p('M8 17V7l4 6 4-6v10'),
+    N: p('M9 17V7l6 10V7'),
+    O: c(12, 12, 5),
+    P: p('M9 17V7h3.25a2.75 2.75 0 0 1 0 5.5H9'),
+    Q: [c(12, 12, 5), p('M13.5 13.5 16.5 16.5')],
+    R: p('M9 17V7h3.25a2.75 2.75 0 0 1 0 5.5H9M12 12.5l3 4.5'),
+    S: p('M15 8.5c-.6-1-1.7-1.5-3-1.5-1.8 0-3 1-3 2.5 0 3.3 6 1.9 6 5 0 1.5-1.3 2.5-3 2.5-1.4 0-2.6-.6-3.2-1.7'),
+    T: p('M8.5 7h7M12 7v10'),
+    U: p('M9 7v6.5a3 3 0 0 0 6 0V7'),
+    V: p('M8.5 7 12 17l3.5-10'),
+    W: p('M7.5 7l2 10L12 10l2.5 7 2-10'),
+    X: p('M9 7l6 10M15 7l-6 10'),
+    Y: p('M8.5 7 12 12l3.5-5M12 12v5'),
+    Z: p('M9 7h6l-6 10h6'),
+  };
+  const NUMS = {
+    0: e(12, 12, 3.5, 5),
+    1: p('M10 9l2.5-2v10M10 17h5'),
+    2: p('M9.2 9.5a3 3 0 0 1 5.8 1c0 2.5-6 4.5-6 6.5h6'),
+    3: p('M9 8.5c.5-1 1.6-1.5 2.9-1.5 1.7 0 3 1 3 2.5S13.6 12 12 12c1.8 0 3.2 1 3.2 2.5S13.8 17 12 17c-1.4 0-2.5-.5-3-1.5'),
+    4: p('M14 17V7l-5.5 7h7'),
+    5: p('M15 7H9.5L9 11.5c.7-.6 1.7-.9 2.7-.9 1.9 0 3.3 1.3 3.3 3.2S13.6 17 11.7 17c-1.2 0-2.2-.5-2.8-1.3'),
+    6: p('M14.5 7.8A4.7 4.7 0 0 0 12.3 7C10.1 7 9 9 9 12.3 9 15.2 10.3 17 12.2 17c1.7 0 3-1.3 3-3.1s-1.3-3.1-3-3.1c-1.5 0-2.7 1-3.2 2.3'),
+    7: p('M9 7h6l-4 10'),
+    8: p('M12 12c-1.7 0-3-1-3-2.5S10.3 7 12 7s3 1 3 2.5S13.7 12 12 12c-1.9 0-3.2 1.1-3.2 2.5S10.1 17 12 17s3.2-1.1 3.2-2.5S13.9 12 12 12Z'),
+  };
+  NUMS[9] = tg(rot(180), NUMS[6]);
+  Object.keys(LETTERS).forEach((k) => family('letters', 'Letter ' + k, LETTERS[k], `letter ${k.toLowerCase()} alphabet character initial type`));
+  Object.keys(NUMS).forEach((k) => family('letters', 'Number ' + k, NUMS[k], `number ${k} digit numeral count`));
+
+  /* ---------- Currency ---------- */
+  const CUR = {
+    Dollar: ['M14.5 9c-.4-.9-1.3-1.5-2.5-1.5-1.5 0-2.5.8-2.5 1.9 0 2.6 5.2 1.4 5.2 4.3 0 1.1-1.1 2-2.7 2-1.3 0-2.3-.6-2.7-1.6M12 6v1.5M12 16.7V18', 'usd usa money'],
+    Euro: ['M15.5 8.6A5 5 0 1 0 15.5 15.4M8 10.75h5M8 13.25h5', 'eur europe money'],
+    Pound: ['M15 16.5H9c1-1 1.5-2.2 1.5-3.5V10a2.75 2.75 0 0 1 5-1.5M8.5 12.5h5', 'gbp sterling uk money'],
+    Yen: ['M8.5 7 12 12l3.5-5M12 12v5M9.5 12.5h5M9.5 15h5', 'jpy yuan cny japan china money'],
+    Rupee: ['M9 7.5h6M9 10.5h6M12.5 7.5a2.75 2.75 0 0 1 0 5.5H9.5l5 4.5', 'inr india money'],
+    Taka: ['M8.75 8.5a1.5 1.5 0 0 1 2.5 1.1v4.9a2.5 2.5 0 0 0 5 0 2.25 2.25 0 0 0-2-2.25M8.75 11h5', 'bdt bangladesh money'],
+    Bitcoin: ['M9 8.5h4.25a1.75 1.75 0 0 1 0 3.5H10M10 12h3.75a2 2 0 0 1 0 4H9M10 8.5V16M11 7v1.5M13 7v1.5M11 16v1.5M13 16v1.5', 'btc crypto blockchain'],
+    Ruble: ['M10 17V7.5h3a2.5 2.5 0 0 1 0 5H8.5M8.5 15h5', 'rub russia money'],
+    Won: ['M7.5 7.5l2 9 2.5-7 2.5 7 2-9M7 11.5h10', 'krw korea money'],
+    Lira: ['M10.5 7v10h1a4.5 4.5 0 0 0 4.5-4.5M8.5 11.25l5-2M8.5 14.25l5-2', 'try turkey money'],
+    Peso: ['M10 17V7.5h2.75a2.75 2.75 0 0 1 0 5.5H10M8.5 9.5h7M8.5 11h7', 'php mxn money'],
+    Naira: ['M9.5 17V7l5 10V7M8 10.5h8M8 13h8', 'ngn nigeria money'],
+    Shekel: ['M8.5 16.5V8h3.5a2 2 0 0 1 2 2v3M15.5 7.5V16h-3.5a2 2 0 0 1-2-2v-3', 'ils israel money'],
+    Baht: ['M10 8h3a2 2 0 0 1 0 4h-3 3.5a2 2 0 0 1 0 4H10ZM10 8v8M12 6.5V8M12 16v1.5', 'thb thailand money'],
+    Cent: ['M14.75 9.5a3.5 3.5 0 1 0 0 5M12.5 6.5v11', 'cents coin change money'],
+    Franc: ['M15 7.5H10V17M10 12h4M8.5 14.5h4', 'chf swiss money'],
+  };
+  Object.keys(CUR).forEach((k) => family('currency', k + ' Sign', p(CUR[k][0]), `${k.toLowerCase()} currency ${CUR[k][1]} finance price`));
+
+  /* ---------- Math & symbols ---------- */
+  const MATH = {
+    'Plus Minus': 'M12 7v7M8.5 10.5h7M8.5 17h7',
+    Multiply: 'M9 9l6 6M15 9l-6 6',
+    Divide: 'M8 12h8',
+    Equals: 'M8.5 10h7M8.5 14h7',
+    'Not Equal': 'M8.5 10h7M8.5 14h7M14 7.5 10 16.5',
+    'Greater Than': 'M9.5 8l5 4-5 4',
+    'Less Than': 'M14.5 8l-5 4 5 4',
+    Approximately: 'M8 10.25c1-1 2-1 3 0s2 1 3 0 2-1 2 0M8 14.25c1-1 2-1 3 0s2 1 3 0 2-1 2 0',
+    Sigma: 'M15 7.5H9l3.5 4.5L9 16.5h6',
+    Pi: 'M8 8.5h8M10 8.5V16.5M14 8.5v6.25a1.75 1.75 0 0 0 1.75 1.75',
+    'Square Root': 'M7 12.5h1.5l2 4 3-10H17',
+    Function: 'M14.5 7.5a2 2 0 0 0-3.25 1.5L10 16a2 2 0 0 1-3.25 1.5M8.5 11h5',
+    Degree: 'M12 9.5a2 2 0 1 0 0-.01',
+    Brackets: 'M10 6.5c-1.5 1.5-2.25 3.5-2.25 5.5s.75 4 2.25 5.5M14 6.5c1.5 1.5 2.25 3.5 2.25 5.5s-.75 4-2.25 5.5',
+    'Square Brackets': 'M10.25 7H8.5v10h1.75M13.75 7h1.75v10h-1.75',
+    Ampersand: 'M15.5 17 9.75 10.6c-.7-.8-.9-1.4-.9-2 0-1 .8-1.6 1.85-1.6s1.8.6 1.8 1.6c0 1.3-1.3 2-3 3.3-1 .8-1.5 1.6-1.5 2.5 0 1.45 1.2 2.6 2.9 2.6 1.6 0 3-1 4.1-3',
+  };
+  Object.keys(MATH).forEach((k) => {
+    const g = k === 'Divide' ? [p(MATH[k]), c(12, 8.5, 0.5, 1), c(12, 15.5, 0.5, 1)] : p(MATH[k]);
+    family('math', k, g, `${k.toLowerCase()} math symbol operator formula calculate`);
+  });
+
+  /* ---------- Shapes & geometry ---------- */
+  const poly = (n, r = 9, cx = 12, cy = 12, startDeg = -90) => {
+    let d = '';
+    for (let i = 0; i < n; i++) { const a = ((startDeg + (360 / n) * i) * Math.PI) / 180; d += (i ? 'L' : 'M') + (cx + r * Math.cos(a)).toFixed(2) + ' ' + (cy + r * Math.sin(a)).toFixed(2); }
+    return p(d + 'Z');
+  };
+  const starN = (n, R = 9.25, r0 = 4.2) => { let d = ''; for (let i = 0; i < n * 2; i++) { const a = (Math.PI / n) * i - Math.PI / 2, rr = i % 2 ? r0 : R; d += (i ? 'L' : 'M') + (12 + rr * Math.cos(a)).toFixed(2) + ' ' + (12.4 + rr * Math.sin(a)).toFixed(2); } return p(d + 'Z'); };
+  const SHAPES = {
+    Triangle: poly(3, 9.5, 12, 13.3), Square: `<rect x="3.5" y="3.5" width="17" height="17" rx="2"/>`, Pentagon: poly(5, 9.25, 12, 12.4), Hexagon: poly(6, 9.25), Heptagon: poly(7, 9.25, 12, 12.2), Octagon: poly(8, 9.25, 12, 12, -67.5),
+    Circle: c(12, 12, 9), Oval: e(12, 12, 9, 6.5), Rhombus: poly(4, 9.5), Parallelogram: p('M7 5.5h14l-4 13H3Z'), Trapezoid: p('M7.5 5.5h9l4 13h-17Z'), Semicircle: p('M3 16a9 9 0 0 1 18 0Z'),
+    'Star Four Point': starN(4, 9.5, 3.6), 'Star Five Point': starN(5), 'Star Six Point': starN(6, 9.25, 5), 'Star Eight Point': starN(8, 9.25, 5.8), Cross: p('M9.25 3.5h5.5v5.75h5.75v5.5h-5.75v5.75h-5.5v-5.75H3.5v-5.5h5.75Z'), Ring: c(12, 12, 9),
+    Pill: `<rect x="2.75" y="7.5" width="18.5" height="9" rx="4.5"/>`, Arch: p('M4.5 20.5V11a7.5 7.5 0 0 1 15 0v9.5Z'), Drop: p('M12 3c3.5 4 6.5 7.3 6.5 11a6.5 6.5 0 0 1-13 0c0-3.7 3-7 6.5-11Z'), Shield: p('M12 3 19.5 5.75v5.6c0 4.4-3.1 8.2-7.5 9.65-4.4-1.45-7.5-5.25-7.5-9.65v-5.6Z'),
+    Blob: p('M12.5 3.5c3.6 0 7.5 2.4 7.5 7.1 0 3.2-1.4 4.4-1.4 6.3 0 2.4-2.6 3.6-5.6 3.6C7.6 20.5 4 17.6 4 13.1 4 7.3 8 3.5 12.5 3.5Z'), Cylinder: [e(12, 6, 7, 2.5), p('M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6')],
+  };
+  Object.keys(SHAPES).forEach((k) => {
+    const s = SHAPES[k];
+    const def = k === 'Ring' ? { b: [s], d: [c(12, 12, 4.5)] } : k === 'Cylinder' ? { b: [p('M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6Z'), s[0]], d: [p('M5.25 6.5c.8 1.2 3.6 2 6.75 2s5.95-.8 6.75-2')] } : { b: Array.isArray(s) ? s : [s] };
+    add('shapes', 'Shape ' + k, `${k.toLowerCase()} shape geometry form polygon`, Object.assign(def, { fit: 1 }));
+  });
+})();
+
 /* ---- icons-cat-office.js ---- */
 /* IconLi — Office & Business (roadmap P1). Original drawings on the Signature grid. */
 (function () {
@@ -567,6 +695,68 @@ window.ICONLI_ORIG=[["o4","Home","interface","outline","<g><path d=\"M10.71 4.31
   add(C, 'Pin Board', 'notes board corkboard ideas', { b: [r(3, 4, 18, 16.5, 3)], d: [r(6.5, 8, 4.5, 4.5, 1), r(13, 8, 4.5, 3.5, 1), r(8, 14.5, 6, 3, 1)], o: [] });
 })();
 
+/* ---- icons-cat-variants.js ---- */
+/* IconLi — modifier families (roadmap: systematic coverage like the largest libraries).
+ * A base icon + a small badge glyph in the bottom-right 13–22 zone, with a clean gap cut around it — the same
+ * construction as the Signature "User Plus". Names follow "<Base> <Modifier>" (e.g. "Folder Lock", "Camera Off").
+ * Each base only gets modifiers that make sense for it (see GROUPS).
+ */
+(function () {
+  const c = (x, y, r, f) => (f ? `<circle cx="${x}" cy="${y}" r="${r}" fill="currentColor" stroke="none"/>` : `<circle cx="${x}" cy="${y}" r="${r}"/>`);
+  const p = (d) => `<path d="${d}"/>`;
+  const star = (cx, cy, R, r0) => { let d = ''; for (let i = 0; i < 10; i++) { const a = (Math.PI / 5) * i - Math.PI / 2, rr = i % 2 ? r0 : R; d += (i ? 'L' : 'M') + (cx + rr * Math.cos(a)).toFixed(2) + ' ' + (cy + rr * Math.sin(a)).toFixed(2); } return p(d + 'Z'); };
+  const BADGE = c(17.5, 17.5, 4); // knockout zone for every badge (gap = stroke + 2.5)
+  // g: badge glyph (stroked) · k: knockout · label: name suffix · tags: search words
+  window.ICONLI_MODS = {
+    plus: { label: 'Plus', tags: 'add new create', g: p('M17.5 14.5v6M14.5 17.5h6'), k: BADGE },
+    minus: { label: 'Minus', tags: 'remove subtract', g: p('M14.5 17.5h6'), k: BADGE },
+    check: { label: 'Check', tags: 'done approved success verified', g: p('M14.75 17.75l1.9 1.9 3.6-3.9'), k: BADGE },
+    x: { label: 'X', tags: 'remove delete cancel error', g: p('M15.25 15.25l4.5 4.5M19.75 15.25l-4.5 4.5'), k: BADGE },
+    edit: { label: 'Edit', tags: 'pencil modify write', g: p('M14.5 20.5l.45-2.05 3.85-3.85a1.06 1.06 0 0 1 1.5 1.5l-3.85 3.85Z'), k: BADGE },
+    search: { label: 'Search', tags: 'find magnify lookup', g: c(17, 17, 2.25) + p('M18.65 18.65l1.85 1.85'), k: BADGE },
+    lock: { label: 'Lock', tags: 'private secure protected', g: `<rect x="14.75" y="17.25" width="5.5" height="4" rx="1"/>` + p('M15.75 17.25v-1.1a1.75 1.75 0 0 1 3.5 0v1.1'), k: c(17.5, 17.75, 4.25) },
+    settings: { label: 'Settings', tags: 'gear cog preferences configure', g: c(17.5, 17.5, 1.25) + p('M17.5 14.25v1M17.5 19.75v1M14.25 17.5h1M19.75 17.5h1M15.2 15.2l.7.7M19.1 19.1l.7.7M15.2 19.8l.7-.7M19.1 15.9l.7-.7'), k: BADGE },
+    star: { label: 'Star', tags: 'favourite rating featured', g: star(17.5, 17.7, 3.6, 1.55), k: BADGE },
+    heart: { label: 'Heart', tags: 'love like favourite', g: p('M17.5 20.75c-.15 0-3-1.65-3-3.45 0-.9.65-1.6 1.5-1.6.6 0 1.15.35 1.5.85.35-.5.9-.85 1.5-.85.85 0 1.5.7 1.5 1.6 0 1.8-2.85 3.45-3 3.45Z'), k: BADGE },
+    share: { label: 'Share', tags: 'send export forward', g: p('M14.75 20.25l5-5M16.5 15.25h3.25v3.25'), k: BADGE },
+    up: { label: 'Upload', tags: 'up send arrow', g: p('M17.5 20.75v-6.25M15 17l2.5-2.5L20 17'), k: BADGE },
+    down: { label: 'Download', tags: 'down save arrow', g: p('M17.5 14.25v6.25M15 18l2.5 2.5L20 18'), k: BADGE },
+    alert: { label: 'Alert', tags: 'warning error attention', g: p('M17.5 14.5v3.5') + c(17.5, 20.25, 0.75, 1), k: BADGE },
+    question: { label: 'Question', tags: 'help faq unknown', g: p('M15.85 15.6a1.7 1.7 0 1 1 2.55 1.45c-.55.3-.9.7-.9 1.3') + c(17.5, 20.5, 0.75, 1), k: BADGE },
+    info: { label: 'Info', tags: 'information details about', g: p('M17.5 17.25v3.25') + c(17.5, 15, 0.75, 1), k: BADGE },
+    clock: { label: 'Clock', tags: 'time schedule history pending', g: c(17.5, 17.5, 3.5) + p('M17.5 15.9v1.75l1.1.9'), k: c(17.5, 17.5, 3.5) },
+    dollar: { label: 'Dollar', tags: 'money price paid cost', g: p('M19 15.6c-.25-.5-.85-.85-1.55-.85-.9 0-1.5.45-1.5 1.1 0 1.5 3.2.85 3.2 2.4 0 .65-.65 1.15-1.65 1.15-.75 0-1.4-.35-1.65-.85M17.5 13.9v.85M17.5 20.25v.85'), k: BADGE },
+    bolt: { label: 'Bolt', tags: 'power energy fast charge', g: p('M18.25 14l-2.5 3.75h3.5l-2.5 3.75'), k: BADGE },
+    ai: { label: 'AI', tags: 'ai sparkle magic smart generate', g: p('M17.5 14c.3 2 1.5 3.2 3.5 3.5-2 .3-3.2 1.5-3.5 3.5-.3-2-1.5-3.2-3.5-3.5 2-.3 3.2-1.5 3.5-3.5Z'), k: BADGE },
+    sync: { label: 'Sync', tags: 'refresh update reload', g: p('M14.75 17a2.75 2.75 0 0 1 4.9-1.5M20.25 18a2.75 2.75 0 0 1-4.9 1.5') + p('M19.75 14.25v1.5h-1.5M15.25 20.75v-1.5h1.5'), k: BADGE },
+    off: { label: 'Off', tags: 'disabled muted unavailable slash', g: p('M3.5 3.5l17 17'), k: p('M3.5 3.5l17 17') },
+  };
+
+  const STD = ['plus', 'minus', 'check', 'x', 'edit', 'search', 'lock', 'settings', 'star', 'heart', 'share', 'up', 'down', 'alert', 'question', 'info', 'clock', 'sync'];
+  const LITE = ['plus', 'minus', 'check', 'x', 'search', 'star', 'heart', 'alert', 'question', 'info', 'clock', 'settings', 'share'];
+  const GROUPS = [
+    // Devices, media and connectivity: everything, plus Off / Bolt / AI
+    [STD.concat(['off', 'bolt', 'ai']), ['Laptop', 'Monitor', 'Desktop', 'Smartphone', 'Tablet', 'Smartwatch', 'Keyboard', 'Mouse', 'Chip', 'Server', 'Printer', 'Headphones', 'Microphone', 'Camera', 'Video', 'TV', 'Speaker', 'Radio', 'Music', 'Film', 'Podcast', 'Bell', 'Phone', 'WiFi', 'Bluetooth', 'Cloud', 'Database', 'Globe', 'Lightbulb', 'Plug', 'Battery Full', 'Eye', 'Image', 'Gamepad', 'VR Headset', 'Antenna', 'Signal', 'Network', 'Cast', 'Projector', 'Handheld Console', 'Robot', 'Volume High', 'Clapperboard', 'Aperture']],
+    // Documents, communication and work: everything, plus AI
+    [STD.concat(['ai']), ['Folder', 'Document', 'File', 'Paper', 'Clipboard', 'Sticky Note', 'Calendar', 'Mail', 'Mail Open', 'Message', 'Chat', 'Chat Bubbles', 'Inbox', 'Archive', 'Book', 'Bookmark', 'Contract', 'Invoice', 'Receipt', 'Table', 'Kanban', 'Presentation', 'Whiteboard', 'Chart Bar', 'Chart Line', 'Chart Pie', 'Chart Columns', 'Code', 'Terminal', 'Browser', 'Dashboard', 'Sidebar', 'Grid', 'Layers', 'Filter', 'Link', 'Paperclip', 'Map', 'Location', 'Flag', 'Pin', 'Home', 'Building', 'User', 'Users', 'Team', 'User Circle', 'ID Card', 'Business Card', 'Contacts', 'Meeting', 'Briefcase', 'Filing Cabinet', 'Save', 'Copy', 'Trash', 'Send', 'Megaphone', 'Target', 'Gauge', 'Pin Board', 'Workspace', 'Cube', 'Palette', 'Pen Tool', 'Brush', 'Shapes', 'Frame', 'Type', 'Hourglass', 'Alarm', 'Stopwatch', 'Clock', 'Key', 'Fingerprint', 'Bug', 'Shield Lock', 'Settings', 'Compass', 'Route', 'Ticket', 'QR Code', 'Barcode', 'Flask', 'Graduation Cap', 'Calculator', 'Backpack']],
+    // Commerce: everything, plus Dollar
+    [STD.concat(['dollar']), ['Cart', 'Basket', 'Bag', 'Wallet', 'Credit Card', 'Coin', 'Coins Stack', 'Bank', 'Store', 'Package', 'Truck', 'Price Tag', 'Gift', 'Piggy Bank', 'Money Bag', 'Diamond', 'Crown', 'Discount', 'Handshake', 'Growth', 'Stamp', 'Mailbox', 'Luggage']],
+    // Nature, travel, food, health, lifestyle and play: a lighter set
+    [LITE, ['Sun', 'Moon', 'Cloud Rain', 'Snowflake', 'Umbrella', 'Thermometer', 'Water Drop', 'Leaf', 'Tree', 'Sprout', 'Mountain', 'Flame', 'Paw', 'Planet', 'Rocket', 'Satellite', 'Telescope', 'Car', 'Bus', 'Train', 'Bicycle', 'Sailboat', 'Airplane', 'Fuel', 'Parking', 'Bed', 'Anchor', 'Coffee', 'Pizza', 'Burger', 'Cake', 'Apple', 'Wine', 'Utensils', 'Chef Hat', 'Ice Cream', 'Stethoscope', 'Pill', 'First Aid', 'Medical Cross', 'Hospital', 'Syringe', 'Dumbbell', 'Heart Pulse', 'Sofa', 'Door', 'Lamp', 'T-Shirt', 'Glasses', 'Watch', 'Perfume', 'Hanger', 'Football', 'Basketball', 'Dice', 'Joystick', 'Trophy', 'Medal', 'Award', 'Tent', 'Playing Cards', 'Kettlebell', 'Podium', 'Whistle', 'Puzzle', 'Atom', 'Microscope', 'Heart', 'Star', 'Smile', 'Thumbs Up']],
+  ];
+
+  const { add } = window.IconLiDSL;
+  const seen = new Set();
+  GROUPS.forEach(([mods, bases]) => bases.forEach((base) => mods.forEach((mod) => {
+    const m = window.ICONLI_MODS[mod];
+    if (new RegExp(`\\b${m.label}\\b`, 'i').test(base)) return; // e.g. no "Clock Clock"
+    const name = `${base} ${m.label}`;
+    if (seen.has(name)) return;
+    seen.add(name);
+    add(undefined, name, `${base.toLowerCase()} ${m.tags} variant`, { comp: { base, mod } });
+  })));
+})();
+
 /* ---- icons-fit.js ---- */
 /* IconLi optical-fit table (generated in the browser with IconLi.fitTable()).
    Icons missing from this table are measured on first render, so new icons still work without regenerating. */
@@ -587,6 +777,7 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
     ['travel', 'Travel & Places'], ['health', 'Health'], ['food', 'Food & Drink'], ['education', 'Education & Science'],
     ['design', 'Design'], ['text', 'Text & Editor'], ['dev', 'Development & AI'], ['charts', 'Charts & Data'],
     ['time', 'Time'], ['lifestyle', 'Home & Lifestyle'], ['games', 'Sports & Games'],
+    ['letters', 'Letters & Numbers'], ['currency', 'Currency'], ['math', 'Math & Symbols'], ['shapes', 'Shapes & Geometry'],
   ];
   const BASE_STROKE = 1.5; // geometry is drawn at 1.5; render strokes scale from here
   /* CMS data (assets/js/icons-cms.js, written by the admin's Publish). Drafts never reach the live catalogue. */
@@ -707,7 +898,9 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
     if (solid && outline && !byKey.has(nm + '|duotone') && allowStyle('duotone', use)) push({ id: rows[0][0] + 'd', name: nm, cat, style: 'duotone', sig: true, tags, kind: 'origDuo', solid, outline, srcKey: 'o:' + name });
   });
   // Extended set (+ CMS redraws) and brand-new CMS icons
+  const compDefs = [];
   const pushDef = (def, i, srcKey, rec) => {
+    if (def.comp) { compDefs.push([def, i, srcKey, rec]); return; }
     if (hiddenCats.has(def.cat)) return;
     const styles = def.b && def.b.length ? ['outline', 'solid', 'duotone'] : ['outline'];
     styles.filter((st) => allowStyle(st, rec)).forEach((style) => push({ id: 'x' + i + style[0], name: def.name, cat: def.cat, style, sig: !!def.sig, tags: def.tags || '', def, kind: 'ext', srcKey }));
@@ -722,6 +915,18 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
   });
   extraDefs.forEach((def, i) => pushDef(def, 'o' + i, def.srcKey, RECS[def.srcKey]));
   Object.keys(RECS).filter((k) => k.startsWith('n:') && live(RECS[k])).forEach((k, i) => pushDef(layersToDef(RECS[k]), 'n' + i, k, RECS[k]));
+  // Modifier families (e.g. "Folder Lock"): a base icon + a small badge with a clean gap (icons-cat-variants.js)
+  const MODS = (typeof window !== 'undefined' && window.ICONLI_MODS) || {};
+  compDefs.forEach(([def, i, srcKey, rec]) => {
+    if (!MODS[def.comp.mod] || byKey.has(def.name + '|outline')) return;
+    const b0 = byKey.get(def.comp.base + '|outline');
+    if (!b0 || hiddenCats.has(def.cat || b0.cat)) return;
+    ['outline', 'solid', 'duotone'].forEach((style) => {
+      const base = byKey.get(def.comp.base + '|' + style);
+      if (!base || !allowStyle(style, rec)) return;
+      push({ id: 'c' + i + style[0], name: def.name, cat: def.cat || base.cat, style, sig: false, tags: def.tags || '', def, kind: 'comp', base, mod: def.comp.mod, srcKey });
+    });
+  });
 
   let uidSeq = 0;
   let animCssDone = false;
@@ -734,6 +939,11 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
     document.head.appendChild(st);
   }
   function body(icon, sw) {
+    if (icon.kind === 'comp') {
+      const m = window.ICONLI_MODS[icon.mod];
+      const knock = `<g fill="#000" stroke="#000" stroke-width="${sw + 2.5}" stroke-linecap="round" stroke-linejoin="round">${m.k}</g>`;
+      return `<defs><mask id="__ID__c" maskUnits="userSpaceOnUse" x="-2" y="-2" width="28" height="28"><rect x="-2" y="-2" width="28" height="28" fill="#fff"/>${knock}</mask></defs><g mask="url(#__ID__c)">${body(icon.base, sw)}</g><g stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" fill="none">${m.g}</g>`;
+    }
     if (icon.kind === 'ext') { ensureFit(icon.def); return extBody(icon.def, icon.style, sw); }
     if (icon.kind === 'origDuo') return `<g opacity="${SETTINGS.duotone}">${scaleStroke(icon.solid.body, sw)}</g>${scaleStroke(icon.outline.body, sw)}`;
     return scaleStroke(icon.body, sw);
@@ -777,7 +987,7 @@ window.ICONLI_CMS = {"version":1,"updated":null,"settings":{},"categories":[],"i
   const svg = (token, o) => render(get(token), o);
   const fitTable = () => {
     const t = {};
-    (window.ICONLI_EXT || []).forEach((d) => { ensureFit(d); t[d.cat + '/' + d.name] = d.fit; });
+    (window.ICONLI_EXT || []).forEach((d) => { if (d.comp) return; ensureFit(d); t[d.cat + '/' + d.name] = d.fit; });
     return t;
   };
 

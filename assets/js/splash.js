@@ -1,8 +1,7 @@
-/* IconLi — splash intro (first load of the site on the home page only, once per browser session)
+/* IconLi — splash intro (every load of the home page; other pages never show it)
  * Endless rows of 3D icon boxes slide in alternating directions and speed up as you scroll. A few scroll steps
  * (or a short pause) fade the field out, the IconLi mark and motto appear, the loader fills and the page content
- * rises in from the bottom. Every other page load skips the splash and just plays the content entrance.
- * Add ?intro to the URL to replay it. Reduced-motion users never get the splash.
+ * reveals. Other pages skip the splash and just reveal their content. Reduced-motion users never get the splash.
  */
 (function () {
   const S = window.Site;
@@ -14,10 +13,7 @@
   const { icons, render, find, GRAD, reduced } = S;
   const page = document.body.dataset.page;
   const params = new URLSearchParams(location.search);
-  let seen = false;
-  try { seen = sessionStorage.getItem('iconli-intro') === '1'; } catch (e) {}
   const full = root.classList.contains('show-intro'); // decided in <head> before first paint
-  try { sessionStorage.setItem('iconli-intro', '1'); } catch (e) {} // any page counts as having entered the site
   const IDLE = 4200;
   const LOAD = 2600;
 
@@ -32,9 +28,9 @@
     if (reduced) return;
     const plane = sp.querySelector('.sp-plane');
     const names = [...new Set(icons.filter((i) => !/^(Arrow|Chevron|Caret)/.test(i.name)).map((i) => i.name))];
-    const box = innerWidth < 768 ? 92 + 22 : 124 + 30;
-    const perRow = Math.ceil((innerWidth * 2.2) / box) + 2;
-    const rowCount = innerWidth < 768 ? 9 : 7;
+    const box = innerWidth < 768 ? 78 + 16 : 104 + 22;
+    const perRow = Math.ceil((innerWidth * 1.35) / box) + 2;
+    const rowCount = Math.ceil((innerHeight * 1.12) / box) + 1;
     const styles = ['duotone', 'solid', 'outline'];
     let k = 0;
     for (let r = 0; r < rowCount; r++) {
@@ -44,12 +40,12 @@
       for (let i = 0; i < perRow; i++) {
         const nm = names[(k++ * 37 + r * 11) % names.length];
         const ic = find(nm, styles[(i + r) % 3]) || find(nm);
-        const tone = (i * 7 + r * 3) % 13 === 0 ? ' accent' : (i * 5 + r) % 17 === 0 ? ' gold' : '';
-        html += `<span class="sp-box${tone}">${render(ic, { size: innerWidth < 768 ? 40 : 54, gradient: !tone && (i + r) % 9 === 0 ? GRAD : undefined })}</span>`;
+        const tone = (i * 7 + r * 3) % 13 === 0 ? ' accent' : (i * 5 + r) % 17 === 0 ? ' gold' : (i + r * 2) % 5 === 0 ? ' dim' : '';
+        html += `<span class="sp-box${tone}">${render(ic, { size: innerWidth < 768 ? 34 : 44, gradient: !tone && (i + r) % 6 === 0 ? GRAD : undefined })}</span>`;
       }
       row.innerHTML = html + html; // doubled for a seamless loop
       plane.appendChild(row);
-      rows.push({ el: row, dir: r % 2 ? -1 : 1, speed: 26 + ((r * 13) % 5) * 7, x: Math.random() * 400, w: 0 });
+      rows.push({ el: row, dir: r % 2 ? -1 : 1, speed: 18 + ((r * 13) % 5) * 5, x: Math.random() * 400, w: 0 });
     }
     requestAnimationFrame(() => rows.forEach((r) => (r.w = r.el.scrollWidth / 2)));
   }
@@ -148,33 +144,15 @@
 
   /* ---------- Entrance: content rises from bottom to top ---------- */
   function enter() {
-    const sel = ['#nav', 'main .reveal', '.marquee', '.lib-head', '.sidebar', '.toolbar', '.result-head', '.tile', '.docs .toc', '.doc > *', '.site-footer'];
-    const vh = innerHeight;
-    const els = [];
-    sel.forEach((s) => document.querySelectorAll(s).forEach((el) => {
-      const r = el.getBoundingClientRect();
-      if (r.top < vh && r.bottom > 0 && !els.includes(el)) els.push(el);
-    }));
-    // order by vertical position so the wave travels upward from the bottom of the screen
-    els.sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top);
-    els.forEach((el, i) => {
-      if (el.classList.contains('reveal')) el.classList.add('in');
-      el.classList.add('enter');
-      el.style.setProperty('--ed', (el.id === 'nav' ? els.length * 18 + 120 : Math.min(i * (el.classList.contains('tile') ? 10 : 70), 900)) + 'ms');
-    });
-    root.classList.add('is-entering');
+    // Hand over to the shared reveal: everything on screen animates in together, the rest on scroll.
     root.classList.remove('is-loading');
-    setTimeout(() => {
-      root.classList.remove('is-entering');
-      els.forEach((el) => { el.classList.remove('enter'); el.style.removeProperty('--ed'); });
-    }, 2200);
+    S.startReveal();
   }
 
   function exit() {
     if (stage === 'done') return;
     stage = 'done';
     unlock();
-    try { sessionStorage.setItem('iconli-intro', '1'); } catch (e) {}
     sp.classList.add('out');
     sp.setAttribute('aria-hidden', 'true');
     enter();
@@ -186,9 +164,18 @@
   addEventListener('pageshow', (e) => { if (e.persisted) { sp.classList.add('gone'); root.classList.remove('is-loading'); S.lenis && S.lenis.start(); } });
 
   /* ---------- Start ---------- */
+  const nm = sp.querySelector('.sp-name');
+  if (nm && !nm.dataset.split) {
+    nm.dataset.split = '1';
+    let i = 0;
+    nm.innerHTML = [...'Icon'].map((c) => `<span class="ch" style="--i:${i++}">${c}</span>`).join('') + `<em class="ch" style="--i:${i++}">Li</em>`;
+  }
   sp.querySelector('.sp-skip').onclick = skip;
   if (matchMedia('(pointer: coarse)').matches) sp.querySelector('.sp-hint').lastChild.textContent = 'Swipe up to enter';
   if (full) {
+    // the intro always starts the home page from the top
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    scrollTo(0, 0);
     buildField();
     running = true;
     requestAnimationFrame((t) => { last = t; tick(t); });

@@ -55,7 +55,14 @@ You can also host `dist/iconli.js` on your own domain and point the script tag a
 
 Open **`/admin/`** (not linked from the site, and set to noindex). From there you can:
 - **Icons:** browse every icon, filter by Edited, Draft, Hidden or New status, and open any icon in the editor.
-- **Editor:** edit vector nodes and Bézier handles, use the pen, rectangle, ellipse and line tools, snap to the 24px grid, flip, rotate and align, undo and redo, and preview live at 16–48px. Every shape has a role:
+- **Editor:** a simple, Figma-like canvas.
+  - **Draw** with the pen, rectangle, ellipse and line tools. The tool switches back to Select when you finish, so you can resize straight away.
+  - **Transform** with 8 resize handles and a rotate handle. Hold Shift to keep proportions, hold Alt to resize from the centre, and Alt-drag to duplicate. Rectangles keep their corner radius when resized.
+  - **Snapping:** points snap to other points and to the keylines, with live guides, or to a ½px grid. Zoom with the wheel or +/−, and pan with Space-drag.
+  - **Edit nodes:** double-click a shape to edit its nodes and Bézier handles. Double-click a segment to add a point, and Alt-click a point to remove it.
+  - **Design panel:** exact X, Y, W, H and rotation fields. Turn the stroke and fill on or off, and set the stroke width, caps, joins and opacity.
+  - **Arrange:** align, flip, rotate 90°, bring to front, send to back and snap to grid.
+  - **Undo and redo,** with a live preview at 16–48px. Every shape has a role:
   - **Body** is stroked in outline, filled in solid and tinted in duotone.
   - **Detail** is knocked out of the solid style.
   - **Open stroke** stays a stroke in every style.
@@ -88,7 +95,8 @@ Edits stay in your browser (drafts) until you publish. Drafts never appear on th
 | `assets/js/landing.js`, `library.js`, `docs.js` | Page scripts |
 | `scripts/build.mjs` | Builds `dist/iconli.js` and `dist/tokens.json` |
 | `assets/js/icons-cms.js` | CMS data published from IconLi Studio (overrides, new icons, categories, defaults) |
-| `assets/js/icons-cat-*.js` | Per-category icon files (Animated, Office & Business, …) |
+| `assets/js/icons-cat-*.js` | Per-category icon files (Animated, Office & Business, Letters/Currency/Math/Shapes in `glyphs`, …). The build picks up new files automatically |
+| `assets/js/icons-cat-variants.js` | Modifier families: `window.ICONLI_MODS` (22 badges) and which bases get which badges. Adding a base name there adds up to 22 icons |
 | `admin/` | IconLi Studio: `index.html`, `admin.css`, `js/path.js` (path engine), `js/model.js` (layers), `js/editor.js` (canvas), `js/cms.js` (app) |
 
 ## Adding an icon

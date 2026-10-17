@@ -2,7 +2,7 @@
 
 **Goal:** someone looking for any icon finds it on IconLi, in outline, solid and duotone, drawn to the Signature style.
 For reference, Lucide has ~1,500 icons, Phosphor ~1,500 × 6 weights, Tabler ~5,900, and Material Symbols ~3,800.
-We aim for **3,000+ families (9,000+ glyphs)**, plus the animated set that the others don't offer.
+We passed **10,000 glyphs** in October 2026. The next aim is **5,000+ families (15,000+ glyphs)**, with more hand-drawn bases (Vehicles, Buildings, Animals, Tools) so the modifier system multiplies them too, plus the animated set that the others don't offer.
 
 ## Quality bar (every batch)
 1. Drawn on the 24px grid with a 2px safe area, a 1.5px stroke and round caps and joins. Optical fit: glyphs ~12px, objects 19–20px.
@@ -12,36 +12,42 @@ We aim for **3,000+ families (9,000+ glyphs)**, plus the animated set that the o
 5. Rich search tags (synonyms and use cases) on every icon.
 
 ## Where we are
-**Library today: 593 families · 1,477 glyphs · 26 categories.**
+**Library today (17 Oct 2026): 4,745 families · 13,107 glyphs · 30 categories.** ✅ The 10K goal is passed.
 
-| Status | Category | Families now | Target |
-| --- | --- | ---: | ---: |
-| ✅ | Animated (hover motion) | 35 | 150 |
-| ✅ | Interface | 107 | 250 |
-| ✅ | Arrows | 40 | 160 |
-| ✅ | Communication | 24 | 90 |
-| ✅ | Media | 37 | 120 |
-| ✅ | Files | 22 | 90 |
-| ✅ | Devices | 20 | 100 |
-| ✅ | Connectivity | 15 | 50 |
-| ✅ | Commerce & Finance | 28 | 120 |
-| ✅ | Office & Business *(new, batch 1)* | 30 | 70 |
-| ✅ | People | 27 | 80 |
-| ✅ | Social & Emotions | 14 | 70 |
-| ✅ | Security | 14 | 60 |
-| ✅ | Weather & Nature | 20 | 90 |
-| ✅ | Space & Galaxy | 14 | 40 |
-| ✅ | Travel & Places | 18 | 90 |
-| ✅ | Health | 9 | 100 |
-| ✅ | Food & Drink | 9 | 100 |
-| ✅ | Education & Science | 13 | 70 |
-| ✅ | Design | 15 | 80 |
-| ✅ | Text & Editor | 16 | 70 |
-| ✅ | Development & AI | 12 | 120 |
-| ✅ | Charts & Data | 10 | 60 |
-| ✅ | Time | 12 | 40 |
-| ✅ | Home & Lifestyle | 9 | 80 |
-| ✅ | Sports & Games | 22 | 90 |
+Counts include **modifier families** (`icons-cat-variants.js`): a base icon plus one of 22 badges (Plus, Lock, Off, Check, Clock, Search, AI…) with a clean knockout gap, like the Signature *User Plus*. Each base only gets badges that make sense for it.
+
+| Category | Families | Glyphs |
+| --- | ---: | ---: |
+| Animated (hover motion) | 36 | 94 |
+| Interface | 449 | 1,133 |
+| Arrows | 40 | 62 |
+| Communication | 217 | 641 |
+| Media | 330 | 984 |
+| Files | 187 | 519 |
+| Devices | 335 | 909 |
+| Connectivity | 153 | 361 |
+| Commerce & Finance | 369 | 1,023 |
+| Office & Business | 336 | 1,006 |
+| People | 110 | 330 |
+| Social & Emotions | 89 | 265 |
+| Security | 89 | 221 |
+| Weather & Nature | 189 | 535 |
+| Space & Galaxy | 66 | 198 |
+| Travel & Places | 287 | 805 |
+| Health | 100 | 296 |
+| Food & Drink | 126 | 378 |
+| Education & Science | 173 | 519 |
+| Design | 129 | 343 |
+| Text & Editor | 35 | 39 |
+| Development & AI | 111 | 291 |
+| Charts & Data | 143 | 385 |
+| Time | 103 | 305 |
+| Home & Lifestyle | 113 | 311 |
+| Sports & Games | 202 | 606 |
+| Letters & Numbers *(new)* | 108 | 252 |
+| Currency *(new)* | 48 | 112 |
+| Math & Symbols *(new)* | 48 | 112 |
+| Shapes & Geometry *(new)* | 24 | 72 |
 
 ## New categories to add (gaps vs. the top libraries)
 | Priority | Category | Examples | Target |

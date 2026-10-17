@@ -40,7 +40,8 @@
         for (const at of c.attributes) if (!GEOM[tag].includes(at.name) && !SKIP.has(at.name) && !PAINT.includes(at.name)) extra[at.name] = at.value;
         Object.assign(extra, pp);
         const isDot = extra.fill && extra.fill !== 'none' && (extra.stroke === 'none' || !extra.stroke) && opts.layered;
-        if (opts.layered) { delete extra.fill; delete extra.stroke; ['stroke-width', 'stroke-linecap', 'stroke-linejoin'].forEach((k) => delete extra[k]); }
+        // layered icons get their paint from the role; explicit per-shape paint (stroke off, width, fill …) is kept as an override
+        if (isDot) { delete extra.fill; delete extra.stroke; }
         const identity = mm.every((v, i) => Math.abs(v - P.I[i]) < 1e-9);
         let layer;
         if (tag !== 'path' && identity && ['circle', 'ellipse', 'rect', 'line'].includes(tag)) {
@@ -151,6 +152,45 @@
     return c;
   }
   const clone = (o) => JSON.parse(JSON.stringify(o));
+  // Scale/translate with an axis-aligned matrix [sx,0,0,sy,tx,ty], keeping clean primitives where possible.
+  function scaleLayer(ly, m) {
+    const [sx, , , sy, tx, ty] = m;
+    const X = (x) => sx * x + tx, Y = (y) => sy * y + ty;
+    const c = clone(ly);
+    if (c.type === 'rect' && sx > 0 && sy > 0) { const a = c.a; Object.assign(a, { x: X(a.x), y: Y(a.y), width: a.width * sx, height: a.height * sy }); a.rx = Math.min(a.rx || 0, a.width / 2, a.height / 2); if (a.ry) a.ry = Math.min(a.ry, a.width / 2, a.height / 2); return c; } // corner radius stays, like Figma
+    if (c.type === 'line') { const a = c.a; Object.assign(a, { x1: X(a.x1), y1: Y(a.y1), x2: X(a.x2), y2: Y(a.y2) }); return c; }
+    if (c.type === 'circle' && Math.abs(Math.abs(sx) - Math.abs(sy)) < 1e-6) { c.a = { cx: X(c.a.cx), cy: Y(c.a.cy), r: c.a.r * Math.abs(sx) }; return c; }
+    if (c.type === 'circle' || c.type === 'ellipse') { const rx = c.type === 'circle' ? c.a.r : c.a.rx, ry = c.type === 'circle' ? c.a.r : c.a.ry; c.type = 'ellipse'; c.a = { cx: X(c.a.cx), cy: Y(c.a.cy), rx: rx * Math.abs(sx), ry: ry * Math.abs(sy) }; return c; }
+    return transformLayer(c, m);
+  }
+  // Paint overrides for one shape (stored as SVG attributes on the shape)
+  function getPaint(ly) {
+    const ex = ly.extra || {};
+    return {
+      stroke: ly.fill ? false : ex.stroke !== 'none',
+      fill: ly.fill ? 'solid' : ex.fill === 'none' ? 'none' : ex.fill ? 'solid' : 'auto',
+      width: ex['stroke-width'] ? parseFloat(ex['stroke-width']) : null,
+      cap: ex['stroke-linecap'] || 'round', join: ex['stroke-linejoin'] || 'round',
+      opacity: ex.opacity != null ? parseFloat(ex.opacity) : 1,
+    };
+  }
+  function setPaint(ly, pt, raw) {
+    const ex = Object.assign({}, ly.extra || {});
+    ly.fill = false;
+    if (raw) {
+      ex.stroke = pt.stroke ? (ex.stroke && ex.stroke !== 'none' ? ex.stroke : 'currentColor') : 'none';
+      ex.fill = pt.fill === 'solid' ? 'currentColor' : 'none';
+    } else {
+      if (pt.stroke) delete ex.stroke; else ex.stroke = 'none';
+      if (pt.fill === 'auto') delete ex.fill; else ex.fill = pt.fill === 'solid' ? 'currentColor' : 'none';
+      if (!pt.stroke && pt.fill === 'solid') { ly.fill = true; delete ex.stroke; delete ex.fill; }
+    }
+    if (pt.width && pt.stroke) ex['stroke-width'] = String(+pt.width.toFixed(3)); else if (!raw) delete ex['stroke-width'];
+    if (pt.cap && pt.cap !== 'round') ex['stroke-linecap'] = pt.cap; else if (!raw) delete ex['stroke-linecap']; else ex['stroke-linecap'] = pt.cap;
+    if (pt.join && pt.join !== 'round') ex['stroke-linejoin'] = pt.join; else if (!raw) delete ex['stroke-linejoin']; else ex['stroke-linejoin'] = pt.join;
+    if (pt.opacity < 0.999) ex.opacity = String(+pt.opacity.toFixed(2)); else delete ex.opacity;
+    ly.extra = ex;
+  }
 
   /* ---------- Import any SVG (Figma, Illustrator …) ---------- */
   function importSvg(text, opts = {}) {
@@ -176,5 +216,5 @@
     return { layers, unsupported: res.unsupported };
   }
 
-  window.IconModel = { uid, parseMarkup, toMarkup, toRaw, toRecordLayers, shapeMarkup, defToLayers, recordToLayers, rawToLayers, rawToRoles, toPath, move, transformLayer, layerSubs, bounds, snapLayer, importSvg, clone };
+  window.IconModel = { uid, scaleLayer, getPaint, setPaint, parseMarkup, toMarkup, toRaw, toRecordLayers, shapeMarkup, defToLayers, recordToLayers, rawToLayers, rawToRoles, toPath, move, transformLayer, layerSubs, bounds, snapLayer, importSvg, clone };
 })();

@@ -254,11 +254,43 @@
     return { update };
   }
 
-  /* Reveal on scroll */
+  /* Reveal: every meaningful block animates on its own. On load, everything already on screen animates
+     together; while scrolling, each block animates the moment it enters the viewport. */
+  const RV_SEL = ['.hero .eyebrow', '.hero h1', '.hero .lead', '.hero .cta', '.stats .stat', '.orbit', '.marquee', '.sec-head > *', '.bento .card', '.pg-controls',
+    '.pg-cell', '.sc', '.codebox', 'section .card:not(.bento .card)', '.faq details', '.lic-list li', '.site-footer .g24 > *', '.site-footer .fine',
+    '.lib-head > *', '.sidebar', '.toolbar', '.result-head', '.tile', '.docs .toc', '.doc > *'].join(',');
+  let rvIO = null, rvStarted = false;
+  const rvDone = (el) => { el.classList.remove('rv', 'in'); el.dataset.rv = 'done'; };
+  function prepReveal(root) {
+    if (reduced || !('IntersectionObserver' in window)) return;
+    const list = [];
+    if (root.nodeType === 1 && root.matches && root.matches(RV_SEL)) list.push(root);
+    if (root.querySelectorAll) list.push(...root.querySelectorAll(RV_SEL));
+    list.forEach((el) => {
+      if (el.dataset.rv || el.closest('.splash, .drawer, .menu-panel')) return;
+      el.dataset.rv = '1';
+      el.classList.add('rv');
+      if (rvStarted) rvIO.observe(el);
+    });
+  }
+  function startReveal() {
+    if (rvStarted) return;
+    rvStarted = true;
+    if (reduced || !('IntersectionObserver' in window)) return;
+    rvIO = new IntersectionObserver((ents) => ents.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      rvIO.unobserve(el);
+      el.classList.add('in');
+      const t = setTimeout(() => rvDone(el), 1100);
+      el.addEventListener('transitionend', (ev) => { if (ev.target === el && ev.propertyName === 'opacity') { clearTimeout(t); rvDone(el); } });
+    }), { threshold: 0.12, rootMargin: '0px 0px -4% 0px' });
+    $$('.rv').forEach((el) => rvIO.observe(el));
+  }
   function initReveal() {
-    if (!('IntersectionObserver' in window)) { $$('.reveal').forEach((el) => el.classList.add('in')); return; }
-    const io = new IntersectionObserver((ents) => ents.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.08 });
-    $$('.reveal').forEach((el) => io.observe(el));
+    $$('.reveal').forEach((el) => el.classList.remove('reveal')); // legacy wrappers: their children animate instead
+    prepReveal(document.body);
+    new MutationObserver((muts) => muts.forEach((m) => m.addedNodes.forEach((n) => n.nodeType === 1 && prepReveal(n)))).observe(document.body, { childList: true, subtree: true });
   }
 
   /* Boot shared bits */
@@ -283,7 +315,7 @@
 
   window.Site = {
     CONFIG, CREDIT, $, $$, icons, render, find, catLabel, usedCats, escapeHtml, GRAD, reduced,
-    hydrate, overlayScroll, toast, copyText, saveBlob, exportSvg, toJsx, svgToPngBlob, setRangeFill, scrollToEl,
+    hydrate, overlayScroll, startReveal, toast, copyText, saveBlob, exportSvg, toJsx, svgToPngBlob, setRangeFill, scrollToEl,
     onTheme: (f) => themeHooks.push(f), get lenis() { return lenis; }, boot,
   };
 })();

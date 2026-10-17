@@ -10,16 +10,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css?v=51" />
+  <link rel="stylesheet" href="assets/css/style.css?v=81" />
   <script>
     try { const t = localStorage.getItem('iconli-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
     // Hide page content until the splash/loader hands over; a safety net reveals it if scripts fail.
     document.documentElement.classList.add('is-loading');
-    // The splash intro plays only on the first load of the site, on the home page (once per session; ?intro replays it).
+    // The splash intro plays every time the home page loads (never on other pages).
     try {
       const home = /(^|\/)(index\.html)?$/.test(location.pathname);
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (home && !reduce && (sessionStorage.getItem('iconli-intro') !== '1' || /[?&]intro\b/.test(location.search))) document.documentElement.classList.add('show-intro');
+      if (home && !reduce) document.documentElement.classList.add('show-intro');
     } catch (e) {}
     setTimeout(function () { if (!window.IconLiSplash) document.documentElement.classList.remove('is-loading'); }, 6000);
   </script>
@@ -311,16 +311,18 @@ IconLi.tokens(); <span class="tok-c">// → ['home', 'home-solid', 'home-duotone
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
-  <script src="assets/js/icons-original.js?v=51"></script>
-  <script src="assets/js/icons-extended.js?v=51"></script>
-  <script src="assets/js/icons-cat-animated.js?v=51"></script>
-  <script src="assets/js/icons-cat-office.js?v=51"></script>
-  <script src="assets/js/icons-fit.js?v=51"></script>
-  <script src="assets/js/icons-cms.js?v=51"></script>
-  <script src="assets/js/iconli-core.js?v=51"></script>
-  <script src="assets/js/iconli-element.js?v=51"></script>
-  <script src="assets/js/site.js?v=51"></script>
-  <script src="assets/js/landing.js?v=51"></script>
-  <script src="assets/js/splash.js?v=51"></script>
+  <script src="assets/js/icons-original.js?v=81"></script>
+  <script src="assets/js/icons-extended.js?v=81"></script>
+  <script src="assets/js/icons-cat-animated.js?v=81"></script>
+  <script src="assets/js/icons-cat-office.js?v=81"></script>
+  <script src="assets/js/icons-cat-glyphs.js?v=81"></script>
+  <script src="assets/js/icons-cat-variants.js?v=81"></script>
+  <script src="assets/js/icons-fit.js?v=81"></script>
+  <script src="assets/js/icons-cms.js?v=81"></script>
+  <script src="assets/js/iconli-core.js?v=81"></script>
+  <script src="assets/js/iconli-element.js?v=81"></script>
+  <script src="assets/js/site.js?v=81"></script>
+  <script src="assets/js/landing.js?v=81"></script>
+  <script src="assets/js/splash.js?v=81"></script>
 </body>
 </html>

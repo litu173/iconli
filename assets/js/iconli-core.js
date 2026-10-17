@@ -7,6 +7,7 @@
     ['travel', 'Travel & Places'], ['health', 'Health'], ['food', 'Food & Drink'], ['education', 'Education & Science'],
     ['design', 'Design'], ['text', 'Text & Editor'], ['dev', 'Development & AI'], ['charts', 'Charts & Data'],
     ['time', 'Time'], ['lifestyle', 'Home & Lifestyle'], ['games', 'Sports & Games'],
+    ['letters', 'Letters & Numbers'], ['currency', 'Currency'], ['math', 'Math & Symbols'], ['shapes', 'Shapes & Geometry'],
   ];
   const BASE_STROKE = 1.5; // geometry is drawn at 1.5; render strokes scale from here
   /* CMS data (assets/js/icons-cms.js, written by the admin's Publish). Drafts never reach the live catalogue. */
@@ -127,7 +128,9 @@
     if (solid && outline && !byKey.has(nm + '|duotone') && allowStyle('duotone', use)) push({ id: rows[0][0] + 'd', name: nm, cat, style: 'duotone', sig: true, tags, kind: 'origDuo', solid, outline, srcKey: 'o:' + name });
   });
   // Extended set (+ CMS redraws) and brand-new CMS icons
+  const compDefs = [];
   const pushDef = (def, i, srcKey, rec) => {
+    if (def.comp) { compDefs.push([def, i, srcKey, rec]); return; }
     if (hiddenCats.has(def.cat)) return;
     const styles = def.b && def.b.length ? ['outline', 'solid', 'duotone'] : ['outline'];
     styles.filter((st) => allowStyle(st, rec)).forEach((style) => push({ id: 'x' + i + style[0], name: def.name, cat: def.cat, style, sig: !!def.sig, tags: def.tags || '', def, kind: 'ext', srcKey }));
@@ -142,6 +145,18 @@
   });
   extraDefs.forEach((def, i) => pushDef(def, 'o' + i, def.srcKey, RECS[def.srcKey]));
   Object.keys(RECS).filter((k) => k.startsWith('n:') && live(RECS[k])).forEach((k, i) => pushDef(layersToDef(RECS[k]), 'n' + i, k, RECS[k]));
+  // Modifier families (e.g. "Folder Lock"): a base icon + a small badge with a clean gap (icons-cat-variants.js)
+  const MODS = (typeof window !== 'undefined' && window.ICONLI_MODS) || {};
+  compDefs.forEach(([def, i, srcKey, rec]) => {
+    if (!MODS[def.comp.mod] || byKey.has(def.name + '|outline')) return;
+    const b0 = byKey.get(def.comp.base + '|outline');
+    if (!b0 || hiddenCats.has(def.cat || b0.cat)) return;
+    ['outline', 'solid', 'duotone'].forEach((style) => {
+      const base = byKey.get(def.comp.base + '|' + style);
+      if (!base || !allowStyle(style, rec)) return;
+      push({ id: 'c' + i + style[0], name: def.name, cat: def.cat || base.cat, style, sig: false, tags: def.tags || '', def, kind: 'comp', base, mod: def.comp.mod, srcKey });
+    });
+  });
 
   let uidSeq = 0;
   let animCssDone = false;
@@ -154,6 +169,11 @@
     document.head.appendChild(st);
   }
   function body(icon, sw) {
+    if (icon.kind === 'comp') {
+      const m = window.ICONLI_MODS[icon.mod];
+      const knock = `<g fill="#000" stroke="#000" stroke-width="${sw + 2.5}" stroke-linecap="round" stroke-linejoin="round">${m.k}</g>`;
+      return `<defs><mask id="__ID__c" maskUnits="userSpaceOnUse" x="-2" y="-2" width="28" height="28"><rect x="-2" y="-2" width="28" height="28" fill="#fff"/>${knock}</mask></defs><g mask="url(#__ID__c)">${body(icon.base, sw)}</g><g stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" fill="none">${m.g}</g>`;
+    }
     if (icon.kind === 'ext') { ensureFit(icon.def); return extBody(icon.def, icon.style, sw); }
     if (icon.kind === 'origDuo') return `<g opacity="${SETTINGS.duotone}">${scaleStroke(icon.solid.body, sw)}</g>${scaleStroke(icon.outline.body, sw)}`;
     return scaleStroke(icon.body, sw);
@@ -197,7 +217,7 @@
   const svg = (token, o) => render(get(token), o);
   const fitTable = () => {
     const t = {};
-    (window.ICONLI_EXT || []).forEach((d) => { ensureFit(d); t[d.cat + '/' + d.name] = d.fit; });
+    (window.ICONLI_EXT || []).forEach((d) => { if (d.comp) return; ensureFit(d); t[d.cat + '/' + d.name] = d.fit; });
     return t;
   };
 
